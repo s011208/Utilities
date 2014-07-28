@@ -1,6 +1,45 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+    android:layout_height="match_parent" >
 
+    <RelativeLayout
+        android:id="@+id/action_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/action_bar_height"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:background="@color/default_action_bar_bg" >
+
+        <TextView
+            android:id="@+id/action_bar_title"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/action_bar_title_margin_left"
+            android:gravity="center"
+            android:textColor="#ffffff"
+            android:textSize="@dimen/action_bar_title_textsize" />
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/main_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/action_bar" >
+    </FrameLayout>
+
+    <RelativeLayout
+        android:id="@+id/list_menu"
+        android:layout_width="@dimen/list_menu_width"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/action_bar"
+        android:background="@color/default_list_menu_bg" >
+
+        <com.bj4.yhh.utilities.listmenu.ListMenu
+            android:id="@+id/list_menu_item"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+        </com.bj4.yhh.utilities.listmenu.ListMenu>
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -2,7 +2,12 @@
 <resources>
 
     <string name="app_name">Utilities</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="item_calculator">Calculator</string>
+    <string name="item_weather">Weather</string>
+
+    <string-array name="list_menu_item">
+        <item>@string/item_calculator</item>
+        <item>@string/item_weather</item>
+    </string-array>
 
 </resources>
