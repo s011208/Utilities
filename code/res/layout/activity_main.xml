@@ -21,12 +21,12 @@
             android:textSize="@dimen/action_bar_title_textsize" />
     </RelativeLayout>
 
-    <FrameLayout
+    <com.bj4.yhh.utilities.MainContainer
         android:id="@+id/main_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/action_bar" >
-    </FrameLayout>
+    </com.bj4.yhh.utilities.MainContainer>
 
     <RelativeLayout
         android:id="@+id/list_menu"

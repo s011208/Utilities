@@ -1,11 +1,16 @@
 
 package com.bj4.yhh.utilities.listmenu;
 
+import java.util.ArrayList;
+
+import com.bj4.yhh.utilities.DatabaseHelper;
 import com.bj4.yhh.utilities.R;
+import com.bj4.yhh.utilities.UtilitiesApplication;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -20,6 +25,8 @@ public class ListMenu extends ListView {
 
     private OnListMenuSelectedCallback mCallback;
 
+    private DatabaseHelper mDatabaseHelper;
+
     public ListMenu(Context context) {
         this(context, null);
     }
@@ -30,6 +37,7 @@ public class ListMenu extends ListView {
 
     public ListMenu(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        mDatabaseHelper = DatabaseHelper.getInstance(context);
         init(context);
     }
 
@@ -43,6 +51,9 @@ public class ListMenu extends ListView {
                 if (mCallback != null) {
                     mCallback.OnListMenuSelected(position);
                     listAdapter.notifyDataSetChanged();
+                    ListMenuItem item = listAdapter.getItem(position);
+                    ++item.mCount;
+                    mDatabaseHelper.addListMenuCount(item);
                 }
             }
         });
@@ -54,23 +65,23 @@ public class ListMenu extends ListView {
 
     public static class ListMenuAdapter extends BaseAdapter {
 
-        private final String[] mData;
+        private final ArrayList<ListMenuItem> mData;
 
         private LayoutInflater mInflater;
 
         public ListMenuAdapter(Context context) {
-            mData = context.getResources().getStringArray(R.array.list_menu_item);
+            mData = UtilitiesApplication.LIST_MENU_ITEMS;
             mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
         @Override
         public int getCount() {
-            return mData.length;
+            return mData.size();
         }
 
         @Override
-        public String getItem(int position) {
-            return mData[position];
+        public ListMenuItem getItem(int position) {
+            return mData.get(position);
         }
 
         @Override
@@ -89,7 +100,7 @@ public class ListMenu extends ListView {
             } else {
                 holder = (ViewHolder)convertView.getTag();
             }
-            holder.mTxt.setText(getItem(position));
+            holder.mTxt.setText(getItem(position).mContent);
             return convertView;
         }
 

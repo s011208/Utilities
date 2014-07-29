@@ -5,39 +5,31 @@ import com.bj4.yhh.utilities.calculator.CalculatorFragment;
 import com.bj4.yhh.utilities.fragments.BaseFragment;
 import com.bj4.yhh.utilities.listmenu.ListMenu;
 import com.bj4.yhh.utilities.listmenu.ListMenu.OnListMenuSelectedCallback;
+import com.bj4.yhh.utilities.weather.WeatherFragment;
 
-import android.animation.Animator;
-import android.animation.Animator.AnimatorListener;
-import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.app.Activity;
-import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.os.Build;
 
-public class MainActivity extends Activity implements OnListMenuSelectedCallback {
+public class MainActivity extends Activity implements OnListMenuSelectedCallback,
+        MainContainer.MainContainerTouchCallback {
 
     private static final int EXPAND_LIST_MENU_ANIMATION_DURATION = 300;
 
     public static final int FRAGMENT_CALCULATOR = 0;
+
+    public static final int FRAGMENT_WEATHER = 1;
 
     private RelativeLayout mActionBar, mListMenu;
 
@@ -51,11 +43,9 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
 
     private ListMenu mListMenuItem;
 
-    private String[] mListMenuItemContent;
-
     private TextView mActionBarTitle;
 
-    private BaseFragment mCalculatorFragment;
+    private BaseFragment mCalculatorFragment, mWeatherFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +54,14 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
         setContentView(R.layout.activity_main);
         init();
         initListMenuAnimations();
-        switchFragment(FRAGMENT_CALCULATOR, false);
+        switchFragment(UtilitiesApplication.FRAGMENT_MATCH_SPARSE_ARRAY.get(0), false);
+    }
+
+    private synchronized WeatherFragment getWeatherFragment() {
+        if (mWeatherFragment == null) {
+            mWeatherFragment = new WeatherFragment();
+        }
+        return (WeatherFragment)mWeatherFragment;
     }
 
     private synchronized CalculatorFragment getCalculatorFragment() {
@@ -80,6 +77,9 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
         switch (targetFragment) {
             case FRAGMENT_CALCULATOR:
                 fragment = getCalculatorFragment();
+                break;
+            case FRAGMENT_WEATHER:
+                fragment = getWeatherFragment();
                 break;
         }
         transaction.replace(R.id.main_container, fragment).commit();
@@ -107,7 +107,6 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
 
     private void init() {
         mListMenuWidth = (int)getResources().getDimension(R.dimen.list_menu_width);
-        mListMenuItemContent = getResources().getStringArray(R.array.list_menu_item);
         mActionBar = (RelativeLayout)findViewById(R.id.action_bar);
         mActionBar.setOnClickListener(new OnClickListener() {
 
@@ -121,22 +120,11 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
             }
         });
         mActionBarTitle = (TextView)findViewById(R.id.action_bar_title);
-        mActionBarTitle.setText(mListMenuItemContent[0]);
+        mActionBarTitle.setText(UtilitiesApplication.LIST_MENU_ITEMS.get(0).mContent);
         mListMenu = (RelativeLayout)findViewById(R.id.list_menu);
         mListMenu.setTranslationX(-mListMenuWidth);
         mMainContainer = (FrameLayout)findViewById(R.id.main_container);
-        mMainContainer.setOnTouchListener(new OnTouchListener() {
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (mIsListMenuExpanded) {
-                    collapseListMenu();
-                    return true;
-                } else {
-                    return v.onTouchEvent(event);
-                }
-            }
-        });
+        ((MainContainer)mMainContainer).setCallback(this);
         mListMenuItem = (ListMenu)findViewById(R.id.list_menu_item);
         mListMenuItem.setCallback(this);
     }
@@ -166,7 +154,17 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
 
     @Override
     public void OnListMenuSelected(int index) {
-        mActionBarTitle.setText(mListMenuItemContent[index]);
+        mActionBarTitle.setText(UtilitiesApplication.LIST_MENU_ITEMS.get(index).mContent);
         collapseListMenu();
+        switchFragment(UtilitiesApplication.FRAGMENT_MATCH_SPARSE_ARRAY.get(index), true);
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent() {
+        if (mIsListMenuExpanded) {
+            collapseListMenu();
+            return true;
+        }
+        return false;
     }
 }
