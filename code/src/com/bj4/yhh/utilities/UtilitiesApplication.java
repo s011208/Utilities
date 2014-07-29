@@ -4,6 +4,8 @@ package com.bj4.yhh.utilities;
 import java.util.ArrayList;
 
 import com.bj4.yhh.utilities.listmenu.ListMenuItem;
+import com.bj4.yhh.utilities.music.MusicDatabaseHelper;
+import com.bj4.yhh.utilities.music.parser.U2BDataParser;
 
 import android.app.Application;
 import android.content.res.Resources;
@@ -19,6 +21,13 @@ public class UtilitiesApplication extends Application {
     public void onCreate() {
         super.onCreate();
         refreshListMenuItem();
+        initU2BDataParser();
+    }
+
+    private void initU2BDataParser() {
+        U2BDataParser parser = U2BDataParser.getInstance(this);
+        MusicDatabaseHelper musicDb = MusicDatabaseHelper.getInstance(this);
+        musicDb.addCallback(parser);
     }
 
     private void refreshListMenuItem() {
@@ -28,12 +37,15 @@ public class UtilitiesApplication extends Application {
         Resources r = getResources();
         String calculator = r.getString(R.string.item_calculator);
         String weather = r.getString(R.string.item_weather);
+        String music = r.getString(R.string.item_music);
         for (int i = 0; i < LIST_MENU_ITEMS.size(); i++) {
             ListMenuItem item = LIST_MENU_ITEMS.get(i);
             if (calculator.equals(item.mContent)) {
                 FRAGMENT_MATCH_SPARSE_ARRAY.put(i, MainActivity.FRAGMENT_CALCULATOR);
             } else if (weather.equals(item.mContent)) {
                 FRAGMENT_MATCH_SPARSE_ARRAY.put(i, MainActivity.FRAGMENT_WEATHER);
+            } else if (music.equals(item.mContent)) {
+                FRAGMENT_MATCH_SPARSE_ARRAY.put(i, MainActivity.FRAGMENT_MUSIC);
             }
         }
     }

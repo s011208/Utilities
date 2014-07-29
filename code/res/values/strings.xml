@@ -4,10 +4,12 @@
     <string name="app_name">Utilities</string>
     <string name="item_calculator">Calculator</string>
     <string name="item_weather">Weather</string>
+    <string name="item_music">Music</string>
 
     <string-array name="list_menu_item">
         <item>@string/item_calculator</item>
         <item>@string/item_weather</item>
+        <item>@string/item_music</item>
     </string-array>
 
 </resources>

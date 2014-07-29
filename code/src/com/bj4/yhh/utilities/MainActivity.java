@@ -5,6 +5,7 @@ import com.bj4.yhh.utilities.calculator.CalculatorFragment;
 import com.bj4.yhh.utilities.fragments.BaseFragment;
 import com.bj4.yhh.utilities.listmenu.ListMenu;
 import com.bj4.yhh.utilities.listmenu.ListMenu.OnListMenuSelectedCallback;
+import com.bj4.yhh.utilities.music.MusicFragment;
 import com.bj4.yhh.utilities.weather.WeatherFragment;
 
 import android.animation.ValueAnimator;
@@ -31,6 +32,8 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
 
     public static final int FRAGMENT_WEATHER = 1;
 
+    public static final int FRAGMENT_MUSIC = 2;
+
     private RelativeLayout mActionBar, mListMenu;
 
     private FrameLayout mMainContainer;
@@ -45,7 +48,7 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
 
     private TextView mActionBarTitle;
 
-    private BaseFragment mCalculatorFragment, mWeatherFragment;
+    private BaseFragment mCalculatorFragment, mWeatherFragment, mMusicFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +58,13 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
         init();
         initListMenuAnimations();
         switchFragment(UtilitiesApplication.FRAGMENT_MATCH_SPARSE_ARRAY.get(0), false);
+    }
+
+    private synchronized MusicFragment getMusicFragment() {
+        if (mMusicFragment == null) {
+            mMusicFragment = new MusicFragment();
+        }
+        return (MusicFragment)mMusicFragment;
     }
 
     private synchronized WeatherFragment getWeatherFragment() {
@@ -80,6 +90,9 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
                 break;
             case FRAGMENT_WEATHER:
                 fragment = getWeatherFragment();
+                break;
+            case FRAGMENT_MUSIC:
+                fragment = getMusicFragment();
                 break;
         }
         transaction.replace(R.id.main_container, fragment).commit();
@@ -156,7 +169,10 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
     public void OnListMenuSelected(int index) {
         mActionBarTitle.setText(UtilitiesApplication.LIST_MENU_ITEMS.get(index).mContent);
         collapseListMenu();
-        switchFragment(UtilitiesApplication.FRAGMENT_MATCH_SPARSE_ARRAY.get(index), true);
+        Integer fragmentIndex = UtilitiesApplication.FRAGMENT_MATCH_SPARSE_ARRAY.get(index);
+        if (fragmentIndex != null) {
+            switchFragment(UtilitiesApplication.FRAGMENT_MATCH_SPARSE_ARRAY.get(index), true);
+        }
     }
 
     @Override

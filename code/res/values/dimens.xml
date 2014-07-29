@@ -8,8 +8,17 @@
     <dimen name="list_menu_width">240dp</dimen>
     <dimen name="list_menu_item_textsize">20sp</dimen>
     <dimen name="list_menu_item_margin_v">10dp</dimen>
-	<!-- calculator -->
-	<dimen name="calculator_diaplay_view_height">80dp</dimen>
-	<dimen name="calculator_diaplay_view_margin_h">15dp</dimen>
-	<dimen name="calculator_diaplay_view_margin_v">10dp</dimen>
-</resources>
+    <!-- calculator -->
+    <dimen name="calculator_diaplay_view_height">80dp</dimen>
+    <dimen name="calculator_diaplay_view_margin_h">15dp</dimen>
+    <dimen name="calculator_diaplay_view_margin_v">10dp</dimen>
+    <!-- toast size -->
+    <dimen name="updating_toast_img_size">40dp</dimen>
+    <dimen name="updating_toast_y_offset">50dp</dimen>
+    <dimen name="updating_toast_image_margin_bottom">10dp</dimen>
+
+    <!-- music list -->
+    <dimen name="music_item_type_margin_left">10dp</dimen>
+    <dimen name="music_item_type_textsize">20sp</dimen>
+    <dimen name="music_item_type_margin_v">5dp</dimen>
+</resources>

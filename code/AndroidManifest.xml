@@ -28,6 +28,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.bj4.yhh.utilities.MainActivity"
@@ -39,8 +40,9 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.bj4.yhh.utilities.weather.WeatherService" >
-        </service>
+        <service android:name="com.bj4.yhh.utilities.music.MusicPlayService" />
+        <service android:name="com.bj4.yhh.utilities.music.MusicParseService" />
+        <service android:name="com.bj4.yhh.utilities.weather.WeatherService" />
     </application>
 
 </manifest>
