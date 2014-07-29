@@ -4,7 +4,7 @@ package com.bj4.yhh.utilities;
 import java.util.ArrayList;
 
 import com.bj4.yhh.utilities.listmenu.ListMenuItem;
-import com.bj4.yhh.utilities.weather.WeatherData;
+import com.bj4.yhh.utilities.weather.WeatherWoeId;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -65,14 +65,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         getDatabase().insert(WEATHER_TABLE, null, cv);
     }
 
-    public ArrayList<WeatherData> getWeatherWoeid() {
-        ArrayList<WeatherData> rtn = new ArrayList<WeatherData>();
+    public ArrayList<WeatherWoeId> getWeatherWoeid() {
+        ArrayList<WeatherWoeId> rtn = new ArrayList<WeatherWoeId>();
         Cursor data = getDatabase().query(WEATHER_TABLE, null, null, null, null, null,
                 WEATHER_ORDER);
         if (data != null) {
             try {
                 while (data.moveToNext()) {
-                    rtn.add(new WeatherData(data.getLong(data.getColumnIndex(WEATHER_WOEID)), data
+                    rtn.add(new WeatherWoeId(data.getLong(data.getColumnIndex(WEATHER_WOEID)), data
                             .getInt(data.getColumnIndex(WEATHER_ORDER))));
                 }
             } finally {

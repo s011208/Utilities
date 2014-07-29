@@ -35,10 +35,10 @@ public class WeatherService extends Service {
     public void onCreate() {
         super.onCreate();
         createFolderIfNeeded();
-        ArrayList<WeatherData> data = DatabaseHelper.getInstance(getApplicationContext())
+        ArrayList<WeatherWoeId> data = DatabaseHelper.getInstance(getApplicationContext())
                 .getWeatherWoeid();
         mParserCounter = data.size();
-        for (WeatherData woeid : data) {
+        for (WeatherWoeId woeid : data) {
             new ParserTask(woeid.mWoeid, mRoot, new ParserTask.ParseDoneCallback() {
                 @Override
                 public void done(long woeid) {
@@ -47,6 +47,7 @@ public class WeatherService extends Service {
                         stopSelf();
                         Log.w(TAG, "stopself");
                     }
+                    WeatherService.this.sendBroadcast(new Intent(Weather.INTENT_ON_DATA_UPDATE));
                 }
             }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }

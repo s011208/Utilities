@@ -1,6 +1,6 @@
 <resources>
     <color name="default_action_bar_bg">#95caca</color>
-    <color name="default_list_menu_bg">#7b7b7b</color>
-    <color name="default_list_menu_item_textcolor">#ffffff</color>
+    <color name="default_list_menu_bg">#d7d7d7</color>
+    <color name="default_list_menu_item_textcolor">#000000</color>
     <color name="default_calculator_diaplay_view_bg">#d6d6ad</color>
 </resources>

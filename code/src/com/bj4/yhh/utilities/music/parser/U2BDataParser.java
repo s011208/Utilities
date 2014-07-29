@@ -27,6 +27,8 @@ public class U2BDataParser implements MusicDatabaseHelper.Callback {
     // http://img.youtube.com/vi/<video id>/0.jpg
     private static final int IGNORE_DURATION = 90;
 
+    private static final int UPDATE_THRESHOLD = 30;
+
     private static final String TAG = "QQQQ";
 
     private static final String SOURCE_PREVIOUS = "https://gdata.youtube.com/feeds/api/videos?q=";
@@ -69,9 +71,13 @@ public class U2BDataParser implements MusicDatabaseHelper.Callback {
         sWorker.post(new Runnable() {
             @Override
             public void run() {
+                int counter = 0;
                 ArrayList<MusicData> musicData = MusicDatabaseHelper.getInstance(mContext)
                         .getMusicData();
+                ArrayList<MusicData> updatingData = new ArrayList<MusicData>();
+                MusicDatabaseHelper helper = MusicDatabaseHelper.getInstance(mContext);
                 for (MusicData data : musicData) {
+                    ++counter;
                     String source = getSource(data);
                     String rawData = parseOnInternet(source);
                     try {
@@ -90,11 +96,17 @@ public class U2BDataParser implements MusicDatabaseHelper.Callback {
                                     .getJSONArray("media$content").get(2)).getString("url");
                         }
                         Log.d(TAG, data.toString());
+                        updatingData.add(data);
+                        if (counter % UPDATE_THRESHOLD == 0) {
+                            helper.updateMusicData(updatingData, true);
+                            updatingData.clear();
+                        }
                     } catch (JSONException jse) {
                         Log.w(TAG, "failed", jse);
                     }
                 }
-                MusicDatabaseHelper.getInstance(mContext).updateMusicData(musicData);
+                if (updatingData.isEmpty() == false)
+                    helper.updateMusicData(updatingData, true);
             }
         });
 

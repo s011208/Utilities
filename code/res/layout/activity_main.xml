@@ -38,7 +38,9 @@
         <com.bj4.yhh.utilities.listmenu.ListMenu
             android:id="@+id/list_menu_item"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" >
+            android:layout_height="match_parent"
+            android:divider="@color/default_action_bar_bg"
+            android:dividerHeight="1dip" >
         </com.bj4.yhh.utilities.listmenu.ListMenu>
     </RelativeLayout>
 

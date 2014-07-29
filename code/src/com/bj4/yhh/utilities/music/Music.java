@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import com.bj4.yhh.utilities.R;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
@@ -17,7 +18,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class Music extends FrameLayout {
+
+    public static final String INTENT_ON_DATA_UPDATE = "com.bj4.yhh.utilities.music.on_data_update";
+
     private Context mContext;
+
+    private MusicListAdapter mAdapter;
 
     public Music(Context context) {
         this(context, null);
@@ -33,12 +39,18 @@ public class Music extends FrameLayout {
         init();
     }
 
+    public void updateContent() {
+        if (mAdapter != null) {
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
     private void init() {
         View contentView = ((LayoutInflater)mContext
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.music, null);
         ListView musicList = (ListView)contentView.findViewById(R.id.music_data_list);
-        final MusicListAdapter adapter = new MusicListAdapter(mContext);
-        musicList.setAdapter(adapter);
+        mAdapter = new MusicListAdapter(mContext);
+        musicList.setAdapter(mAdapter);
         addView(contentView);
     }
 

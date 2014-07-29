@@ -33,7 +33,7 @@ public class KKBoxParser implements Runnable {
         URLS.put("電子電台", "http://www.kkbox.com/tw/tc/charts/electronic-daily-song-latest.html");
         URLS.put("古典電台", "http://www.kkbox.com/tw/tc/charts/classical-daily-song-latest.html");
         URLS.put("爵士電台", "http://www.kkbox.com/tw/tc/charts/jazz-daily-song-latest.html");
-        URLS.put("療育電台", "http://www.kkbox.com/tw/tc/charts/world_music-daily-song-latest.html");
+        URLS.put("療癒電台", "http://www.kkbox.com/tw/tc/charts/world_music-daily-song-latest.html");
     }
 
     private Context mContext;

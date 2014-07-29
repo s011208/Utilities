@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +30,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class Weather extends FrameLayout {
+    public static final String INTENT_ON_DATA_UPDATE = "com.bj4.yhh.utilities.weather.on_data_update";
+
+    private static LruCache<Long, WeatherData> sWeatherDataCache = new LruCache<Long, WeatherData>(
+            15);
+
     private Context mContext;
+
+    private WeatherListAdapter mAdapter;
 
     public Weather(Context context) {
         this(context, null);
@@ -46,11 +54,17 @@ public class Weather extends FrameLayout {
         init();
     }
 
+    public void updateContent() {
+        if (mAdapter != null) {
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
     private void init() {
         View contentView = ((LayoutInflater)mContext
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.weather, null);
         ListView mWeatherList = (ListView)contentView.findViewById(R.id.weather_data_list);
-        final WeatherListAdapter mAdapter = new WeatherListAdapter(mContext);
+        mAdapter = new WeatherListAdapter(mContext);
         mWeatherList.setAdapter(mAdapter);
         addView(contentView);
     }
@@ -58,7 +72,7 @@ public class Weather extends FrameLayout {
     public static class WeatherListAdapter extends BaseAdapter {
         private Context mContext;
 
-        private ArrayList<WeatherData> mData;
+        private ArrayList<WeatherWoeId> mData;
 
         private LayoutInflater mInflater;
 
@@ -83,7 +97,7 @@ public class Weather extends FrameLayout {
         }
 
         @Override
-        public WeatherData getItem(int position) {
+        public WeatherWoeId getItem(int position) {
             return mData.get(position);
         }
 
@@ -179,58 +193,88 @@ public class Weather extends FrameLayout {
              */
             @Override
             protected Void doInBackground(Void... params) {
-                File file = new File(mContext.getFilesDir().getAbsolutePath() + File.separator
-                        + WeatherService.FOLDER_NAME + File.separator + mWoeid);
-                if (file.exists()) {
-                    String data = readFromFile(file.getAbsolutePath());
-                    try {
-                        JSONObject channel = new JSONObject(data).getJSONObject("query")
-                                .getJSONObject("results").getJSONObject("channel");
-                        JSONObject location = channel.getJSONObject("location");
-                        mWeatherLocation = location.getString("city") + " ,"
-                                + location.getString("country");
-
-                        JSONObject wind = channel.getJSONObject("wind");
-                        mWeatherCurrentSubCondition = "wind: " + wind.getString("speed");
-
-                        JSONObject atmosphere = channel.getJSONObject("atmosphere");
-                        mWeatherCurrentSubCondition += "\nhumidity: "
-                                + atmosphere.getString("humidity") + "\nvisibility: "
-                                + atmosphere.getString("visibility");
-
-                        JSONObject astronomy = channel.getJSONObject("astronomy");
-                        mWeatherCurrentSubCondition += "\nsunrise: "
-                                + astronomy.getString("sunrise") + "\nsunset: "
-                                + astronomy.getString("sunset");
-
-                        JSONObject condition = channel.getJSONObject("item").getJSONObject(
-                                "condition");
-                        mWeatherCurrentCondition = condition.getString("temp") + "\n"
-                                + condition.getString("text");
-
-                        JSONArray forecast = channel.getJSONObject("item").getJSONArray("forecast");
-                        for (int i = 0; i < forecast.length(); i++) {
-                            JSONObject f = forecast.getJSONObject(i);
-                            if (i == 0) {
-                                mForecast0 = f.getString("day") + "\n" + f.getString("high")
-                                        + " / " + f.getString("low");
-                            } else if (i == 1) {
-                                mForecast1 = f.getString("day") + "\n" + f.getString("high")
-                                        + " / " + f.getString("low");
-                            } else if (i == 2) {
-                                mForecast2 = f.getString("day") + "\n" + f.getString("high")
-                                        + " / " + f.getString("low");
-                            } else if (i == 3) {
-                                mForecast3 = f.getString("day") + "\n" + f.getString("high")
-                                        + " / " + f.getString("low");
-                            } else if (i == 4) {
-                                mForecast4 = f.getString("day") + "\n" + f.getString("high")
-                                        + " / " + f.getString("low");
+                WeatherData wData = sWeatherDataCache.get(mWoeid);
+                String city = null, country = null, sWind = null, humidity = null, visibility = null, rise = null, set = null, currentTemp = null, currentText = null;
+                WeatherData.WeatherForecast f0 = null, f1 = null, f2 = null, f3 = null, f4 = null;
+                if (wData == null) {
+                    File file = new File(mContext.getFilesDir().getAbsolutePath() + File.separator
+                            + WeatherService.FOLDER_NAME + File.separator + mWoeid);
+                    if (file.exists()) {
+                        String data = readFromFile(file.getAbsolutePath());
+                        try {
+                            JSONObject channel = new JSONObject(data).getJSONObject("query")
+                                    .getJSONObject("results").getJSONObject("channel");
+                            JSONObject location = channel.getJSONObject("location");
+                            city = location.getString("city");
+                            country = location.getString("country");
+                            JSONObject wind = channel.getJSONObject("wind");
+                            sWind = wind.getString("speed");
+                            JSONObject atmosphere = channel.getJSONObject("atmosphere");
+                            humidity = atmosphere.getString("humidity");
+                            visibility = atmosphere.getString("visibility");
+                            JSONObject astronomy = channel.getJSONObject("astronomy");
+                            rise = astronomy.getString("sunrise");
+                            set = astronomy.getString("sunset");
+                            JSONObject condition = channel.getJSONObject("item").getJSONObject(
+                                    "condition");
+                            currentTemp = condition.getString("temp");
+                            currentText = condition.getString("text");
+                            JSONArray forecast = channel.getJSONObject("item").getJSONArray(
+                                    "forecast");
+                            for (int i = 0; i < forecast.length(); i++) {
+                                JSONObject f = forecast.getJSONObject(i);
+                                if (i == 0) {
+                                    f0 = new WeatherData.WeatherForecast(f.getString("day"),
+                                            f.getString("high"), f.getString("low"));
+                                } else if (i == 1) {
+                                    f1 = new WeatherData.WeatherForecast(f.getString("day"),
+                                            f.getString("high"), f.getString("low"));
+                                } else if (i == 2) {
+                                    f2 = new WeatherData.WeatherForecast(f.getString("day"),
+                                            f.getString("high"), f.getString("low"));
+                                } else if (i == 3) {
+                                    f3 = new WeatherData.WeatherForecast(f.getString("day"),
+                                            f.getString("high"), f.getString("low"));
+                                } else if (i == 4) {
+                                    f4 = new WeatherData.WeatherForecast(f.getString("day"),
+                                            f.getString("high"), f.getString("low"));
+                                }
                             }
+                            sWeatherDataCache.put(mWoeid, new WeatherData(city, country, sWind,
+                                    humidity, visibility, rise, set, currentTemp, currentText, f0,
+                                    f1, f2, f3, f4));
+                        } catch (JSONException e) {
+                            Log.w("QQQQ", "failed", e);
                         }
-                    } catch (JSONException e) {
-                        Log.w("QQQQ", "failed", e);
                     }
+                } else {
+                    city = wData.mCity;
+                    country = wData.mCountry;
+                    sWind = wData.mWind;
+                    humidity = wData.mHumidity;
+                    visibility = wData.mVisibility;
+                    rise = wData.mSunrise;
+                    set = wData.mSunset;
+                    currentTemp = wData.mCurrentTemp;
+                    currentText = wData.mCurrentCondi;
+                    f0 = wData.mF0;
+                    f1 = wData.mF1;
+                    f2 = wData.mF2;
+                    f3 = wData.mF3;
+                    f4 = wData.mF4;
+                }
+                if (city != null) {
+                    mWeatherLocation = city + " ," + country;
+                    mWeatherCurrentSubCondition = "wind: " + sWind;
+                    mWeatherCurrentSubCondition += "\nhumidity: " + humidity + "\nvisibility: "
+                            + visibility;
+                    mWeatherCurrentSubCondition += "\nsunrise: " + rise + "\nsunset: " + set;
+                    mWeatherCurrentCondition = currentTemp + "\n" + currentText;
+                    mForecast0 = f0.mDay + "\n" + f0.mHigh + " / " + f0.mLow;
+                    mForecast1 = f1.mDay + "\n" + f1.mHigh + " / " + f1.mLow;
+                    mForecast2 = f2.mDay + "\n" + f2.mHigh + " / " + f2.mLow;
+                    mForecast3 = f3.mDay + "\n" + f3.mHigh + " / " + f3.mLow;
+                    mForecast4 = f4.mDay + "\n" + f4.mHigh + " / " + f4.mLow;
                 }
                 return null;
             }

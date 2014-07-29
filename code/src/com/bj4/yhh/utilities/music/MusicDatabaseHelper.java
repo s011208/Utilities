@@ -126,7 +126,7 @@ public class MusicDatabaseHelper extends SQLiteOpenHelper {
         return rtn;
     }
 
-    public void updateMusicData(ArrayList<MusicData> data) {
+    public void updateMusicData(ArrayList<MusicData> data, boolean notify) {
         Iterator<MusicData> iter = data.iterator();
         while (iter.hasNext()) {
             MusicData music = iter.next();
@@ -138,7 +138,9 @@ public class MusicDatabaseHelper extends SQLiteOpenHelper {
                 getDatabase().update(MUSIC_DATA_TABLE, cv, MUSIC_DATA_ID + "=" + music.mId, null);
             }
         }
-        getDatabase().delete(MUSIC_DATA_TABLE, MSUIC_DATA_RTSP_H + " is null", null);
+        if (notify) {
+            mContext.sendBroadcast(new Intent(Music.INTENT_ON_DATA_UPDATE));
+        }
     }
 
     public synchronized void addMusicData(ArrayList<ContentValues> cvs,
