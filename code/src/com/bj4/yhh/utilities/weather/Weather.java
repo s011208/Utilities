@@ -14,6 +14,8 @@ import org.json.JSONObject;
 
 import com.bj4.yhh.utilities.DatabaseHelper;
 import com.bj4.yhh.utilities.R;
+import com.bj4.yhh.utilities.UtilitiesApplication;
+import com.bj4.yhh.utilities.util.Utils;
 
 import android.content.Context;
 import android.content.Intent;
@@ -36,8 +38,9 @@ public class Weather extends FrameLayout {
 
     public static final String INTENT_ON_DATA_UPDATE = "com.bj4.yhh.utilities.weather.on_data_update";
 
-    private static LruCache<Long, WeatherData> sWeatherDataCache = new LruCache<Long, WeatherData>(
-            15);
+    public static final String INTENT_ON_ID_UPDATE = "com.bj4.yhh.utilities.weather.on_id_update";
+
+    public static final String INTENT_EXTRAS_ON_ID_UPDATE_RESULT = "com.bj4.yhh.utilities.weather.on_id_update_result";
 
     private Context mContext;
 
@@ -111,7 +114,7 @@ public class Weather extends FrameLayout {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder;
+            final ViewHolder holder;
             if (convertView == null) {
                 convertView = mInflater.inflate(R.layout.weather_item, null);
                 holder = new ViewHolder();
@@ -145,25 +148,6 @@ public class Weather extends FrameLayout {
         }
 
         public static class LoadWeatherDataTask extends AsyncTask<Void, Void, Void> {
-            private static String readFromFile(String filePath) {
-                String ret = "";
-                try {
-                    BufferedReader br = new BufferedReader(new FileReader(filePath));
-                    StringBuilder sb = new StringBuilder();
-                    String line = br.readLine();
-
-                    while (line != null) {
-                        sb.append(line);
-                        sb.append(System.lineSeparator());
-                        line = br.readLine();
-                    }
-                    ret = sb.toString();
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return ret;
-            }
 
             private long mWoeid;
 
@@ -196,74 +180,16 @@ public class Weather extends FrameLayout {
              */
             @Override
             protected Void doInBackground(Void... params) {
-                WeatherData wData = sWeatherDataCache.get(mWoeid);
+                WeatherData wData = UtilitiesApplication.sWeatherDataCache.get(mWoeid);
                 String city = null, country = null, sWind = null, humidity = null, visibility = null, rise = null, set = null, currentTemp = null, currentText = null;
                 WeatherData.WeatherForecast f0 = null, f1 = null, f2 = null, f3 = null, f4 = null;
                 int currentCode;
+                Log.d(TAG, "doInBackground: " + mWoeid);
                 if (wData == null) {
-                    File file = new File(mContext.getFilesDir().getAbsolutePath() + File.separator
-                            + WeatherService.FOLDER_NAME + File.separator + mWoeid);
-                    if (file.exists()) {
-                        String data = readFromFile(file.getAbsolutePath());
-                        try {
-                            JSONObject channel = new JSONObject(data).getJSONObject("query")
-                                    .getJSONObject("results").getJSONObject("channel");
-                            JSONObject location = channel.getJSONObject("location");
-                            city = location.getString("city");
-                            country = location.getString("country");
-                            JSONObject wind = channel.getJSONObject("wind");
-                            sWind = wind.getString("speed");
-                            JSONObject atmosphere = channel.getJSONObject("atmosphere");
-                            humidity = atmosphere.getString("humidity");
-                            visibility = atmosphere.getString("visibility");
-                            JSONObject astronomy = channel.getJSONObject("astronomy");
-                            rise = astronomy.getString("sunrise");
-                            set = astronomy.getString("sunset");
-                            JSONObject condition = channel.getJSONObject("item").getJSONObject(
-                                    "condition");
-                            currentTemp = condition.getString("temp");
-                            currentText = condition.getString("text");
-                            currentCode = condition.getInt("code");
-                            JSONArray forecast = channel.getJSONObject("item").getJSONArray(
-                                    "forecast");
-                            for (int i = 0; i < forecast.length(); i++) {
-                                JSONObject f = forecast.getJSONObject(i);
-                                if (i == 0) {
-                                    f0 = new WeatherData.WeatherForecast(f.getString("day"),
-                                            f.getString("high"), f.getString("low"),
-                                            f.getInt("code"));
-                                } else if (i == 1) {
-                                    f1 = new WeatherData.WeatherForecast(f.getString("day"),
-                                            f.getString("high"), f.getString("low"),
-                                            f.getInt("code"));
-                                } else if (i == 2) {
-                                    f2 = new WeatherData.WeatherForecast(f.getString("day"),
-                                            f.getString("high"), f.getString("low"),
-                                            f.getInt("code"));
-                                } else if (i == 3) {
-                                    f3 = new WeatherData.WeatherForecast(f.getString("day"),
-                                            f.getString("high"), f.getString("low"),
-                                            f.getInt("code"));
-                                } else if (i == 4) {
-                                    f4 = new WeatherData.WeatherForecast(f.getString("day"),
-                                            f.getString("high"), f.getString("low"),
-                                            f.getInt("code"));
-                                }
-                            }
-                            sWeatherDataCache.put(mWoeid, new WeatherData(city, country, sWind,
-                                    humidity, visibility, rise, set, currentTemp, currentText,
-                                    currentCode, f0, f1, f2, f3, f4));
-                        } catch (JSONException e) {
-                            if (DEBUG)
-                                Log.w(TAG, "failed", e);
-                        }
-                    } else {
-                        // request to parse
-                        Intent parse = new Intent(mContext, WeatherService.class);
-                        parse.putExtra(WeatherService.INTENT_KEY_WOEID, mWoeid);
-                        mContext.startService(parse);
-                    }
-                } else {
+                    Log.e(TAG, "wData == null: " + mWoeid);
+                    wData = Utils.parseWeatherData(mContext, mWoeid);
+                }
+                if (mHolder != null && wData != null) {
                     city = wData.mCity;
                     country = wData.mCountry;
                     sWind = wData.mWind;
@@ -279,33 +205,35 @@ public class Weather extends FrameLayout {
                     f2 = wData.mF2;
                     f3 = wData.mF3;
                     f4 = wData.mF4;
-                }
-                if (city != null) {
-                    mWeatherLocation = city + " ," + country;
-                    mWeatherCurrentSubCondition = "wind: " + sWind;
-                    mWeatherCurrentSubCondition += "\nhumidity: " + humidity + "\nvisibility: "
-                            + visibility;
-                    mWeatherCurrentSubCondition += "\nsunrise: " + rise + "\nsunset: " + set;
-                    mWeatherCurrentCondition = currentTemp + "\n" + currentText;
-                    mForecast0 = f0.mDay + "\n" + f0.mHigh + " / " + f0.mLow;
-                    mForecast1 = f1.mDay + "\n" + f1.mHigh + " / " + f1.mLow;
-                    mForecast2 = f2.mDay + "\n" + f2.mHigh + " / " + f2.mLow;
-                    mForecast3 = f3.mDay + "\n" + f3.mHigh + " / " + f3.mLow;
-                    mForecast4 = f4.mDay + "\n" + f4.mHigh + " / " + f4.mLow;
+                    if (city != null) {
+                        mWeatherLocation = city + " ," + country;
+                        mWeatherCurrentSubCondition = "wind: " + sWind;
+                        mWeatherCurrentSubCondition += "\nhumidity: " + humidity + "\nvisibility: "
+                                + visibility;
+                        mWeatherCurrentSubCondition += "\nsunrise: " + rise + "\nsunset: " + set;
+                        mWeatherCurrentCondition = currentTemp + "\n" + currentText;
+                        mForecast0 = f0.mDay + "\n" + f0.mHigh + " / " + f0.mLow;
+                        mForecast1 = f1.mDay + "\n" + f1.mHigh + " / " + f1.mLow;
+                        mForecast2 = f2.mDay + "\n" + f2.mHigh + " / " + f2.mLow;
+                        mForecast3 = f3.mDay + "\n" + f3.mHigh + " / " + f3.mLow;
+                        mForecast4 = f4.mDay + "\n" + f4.mHigh + " / " + f4.mLow;
+                    }
                 }
                 return null;
             }
 
             @Override
             protected void onPostExecute(Void v) {
-                mHolder.mWeatherLocation.setText(mWeatherLocation);
-                mHolder.mWeatherCurrentCondition.setText(mWeatherCurrentCondition);
-                mHolder.mWeatherCurrentSubCondition.setText(mWeatherCurrentSubCondition);
-                mHolder.mForecast0.setText(mForecast0);
-                mHolder.mForecast1.setText(mForecast1);
-                mHolder.mForecast2.setText(mForecast2);
-                mHolder.mForecast3.setText(mForecast3);
-                mHolder.mForecast4.setText(mForecast4);
+                if (mHolder != null) {
+                    mHolder.mWeatherLocation.setText(mWeatherLocation);
+                    mHolder.mWeatherCurrentCondition.setText(mWeatherCurrentCondition);
+                    mHolder.mWeatherCurrentSubCondition.setText(mWeatherCurrentSubCondition);
+                    mHolder.mForecast0.setText(mForecast0);
+                    mHolder.mForecast1.setText(mForecast1);
+                    mHolder.mForecast2.setText(mForecast2);
+                    mHolder.mForecast3.setText(mForecast3);
+                    mHolder.mForecast4.setText(mForecast4);
+                }
             }
         }
 

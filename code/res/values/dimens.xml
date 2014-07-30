@@ -1,5 +1,7 @@
 <resources>
 
+    <!-- fragment animation -->
+    <integer name="fragment_animation_duration">400</integer>
     <!-- action bar -->
     <dimen name="action_bar_height">50dp</dimen>
     <dimen name="action_bar_title_margin_left">10dp</dimen>
@@ -21,4 +23,8 @@
     <dimen name="music_item_type_margin_left">10dp</dimen>
     <dimen name="music_item_type_textsize">20sp</dimen>
     <dimen name="music_item_type_margin_v">5dp</dimen>
-</resources>
+
+    <!-- dialog -->
+    <dimen name="dialog_content_textsize">20sp</dimen>
+    <dimen name="dialog_content_padding">12dp</dimen>
+</resources>

@@ -25,7 +25,7 @@
             android:layout_width="@dimen/action_bar_height"
             android:layout_height="@dimen/action_bar_height"
             android:layout_alignParentRight="true"
-            android:layout_margin="3dp"
+            android:layout_margin="5dp"
             android:scaleType="centerInside"
             android:src="@drawable/ic_option_btn" />
     </RelativeLayout>

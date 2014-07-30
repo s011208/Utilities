@@ -5,6 +5,9 @@
     <string name="item_calculator">Calculator</string>
     <string name="item_weather">Weather</string>
     <string name="item_music">Music</string>
+    <string name="ok">@android:string/ok</string>
+    <string name="cancel">@android:string/cancel</string>
+    <string name="settings">Settings</string>
 
     <string-array name="list_menu_item">
         <item>@string/item_calculator</item>

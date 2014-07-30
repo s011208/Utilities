@@ -7,10 +7,12 @@ import com.bj4.yhh.utilities.listmenu.ListMenuItem;
 import com.bj4.yhh.utilities.music.MusicDatabaseHelper;
 import com.bj4.yhh.utilities.music.parser.U2BDataParser;
 import com.bj4.yhh.utilities.weather.LoadCitiesListService;
+import com.bj4.yhh.utilities.weather.WeatherData;
 
 import android.app.Application;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.util.LruCache;
 import android.util.SparseArray;
 
 public class UtilitiesApplication extends Application {
@@ -20,6 +22,9 @@ public class UtilitiesApplication extends Application {
     public static final SparseArray<Integer> FRAGMENT_MATCH_SPARSE_ARRAY = new SparseArray<Integer>();
 
     public static boolean sIsCitiesServiceLoading = false;
+
+    public static LruCache<Long, WeatherData> sWeatherDataCache = new LruCache<Long, WeatherData>(
+            30);
 
     @Override
     public void onCreate() {

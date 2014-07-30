@@ -7,6 +7,7 @@ import com.bj4.yhh.utilities.listmenu.ListMenu;
 import com.bj4.yhh.utilities.listmenu.ListMenu.OnListMenuSelectedCallback;
 import com.bj4.yhh.utilities.music.MusicFragment;
 import com.bj4.yhh.utilities.weather.WeatherFragment;
+import com.bj4.yhh.utilities.weather.WeatherOptionDialog;
 
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
@@ -34,6 +35,8 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
     public static final int FRAGMENT_WEATHER = 1;
 
     public static final int FRAGMENT_MUSIC = 2;
+
+    private int mCurrentFragment = -1;
 
     private RelativeLayout mActionBar, mListMenu;
 
@@ -85,6 +88,9 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
     }
 
     public void switchFragment(int targetFragment, boolean animated) {
+        if (mCurrentFragment == targetFragment) {
+            return;
+        }
         Fragment fragment = getCalculatorFragment();
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         switch (targetFragment) {
@@ -98,10 +104,14 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
                 break;
             case FRAGMENT_MUSIC:
                 fragment = getMusicFragment();
-                mOption.setVisibility(View.VISIBLE);
+                mOption.setVisibility(View.GONE);
                 break;
+            default:
+                return;
         }
-        transaction.replace(R.id.main_container, fragment).commit();
+        mCurrentFragment = targetFragment;
+        transaction.setCustomAnimations(R.anim.fragment_slide_in, R.anim.fragment_slide_out)
+                .replace(R.id.main_container, fragment).commit();
     }
 
     public void onBackPressed() {
@@ -144,6 +154,18 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
         mOption.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                switch (mCurrentFragment) {
+                    case FRAGMENT_CALCULATOR:
+                        break;
+                    case FRAGMENT_WEATHER:
+                        WeatherOptionDialog dialog = WeatherOptionDialog.getNewInstance();
+                        dialog.show(getFragmentManager(), "WeatherOptionDialog");
+                        break;
+                    case FRAGMENT_MUSIC:
+                        break;
+                    default:
+                        return;
+                }
             }
         });
         mListMenu = (RelativeLayout)findViewById(R.id.list_menu);

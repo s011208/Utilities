@@ -53,6 +53,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String TABLE_CITIES_LIST_NATION = "city_nation";
 
+    public static final int TABLE_CITIES_LIST_NOT_FOUND_DATA = -5000;
+
     private void createCityListTable() {
         getDatabase().execSQL(
                 "CREATE TABLE IF NOT EXISTS " + TABLE_CITIES_LIST + "(" + TABLE_CITIES_LIST_ID
@@ -132,6 +134,47 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch (IOException e) {
             Log.e(TAG, "failed", e);
         }
+    }
+
+    public ArrayList<String> getAllCitiesName() {
+        ArrayList<String> rtn = new ArrayList<String>();
+        Cursor data = getDatabase().query(TABLE_CITIES_LIST, new String[] {
+                TABLE_CITIES_LIST_NAME, TABLE_CITIES_LIST_NATION
+        }, null, null, null, null, TABLE_CITIES_LIST_NATION, null);
+        if (data != null) {
+            while (data.moveToNext()) {
+                String name = data.getString(0);
+                String nation = data.getString(1);
+                rtn.add(name + ", " + nation);
+            }
+            data.close();
+        }
+        return rtn;
+    }
+
+    public float[] getCityInfo(String cityAndNation) {
+        String[] raw = cityAndNation.split(", ");
+        float[] rtn = new float[] {
+                TABLE_CITIES_LIST_NOT_FOUND_DATA, TABLE_CITIES_LIST_NOT_FOUND_DATA
+        };
+        if (raw.length == 2) {
+            Cursor data = getDatabase().query(
+                    TABLE_CITIES_LIST,
+                    new String[] {
+                            TABLE_CITIES_LIST_LAT, TABLE_CITIES_LIST_LON
+                    },
+                    TABLE_CITIES_LIST_NAME + "='" + raw[0] + "' and " + TABLE_CITIES_LIST_NATION
+                            + "='" + raw[1] + "'", null, null, null, null, null);
+
+            if (data != null) {
+                while (data.moveToNext()) {
+                    rtn[0] = data.getFloat(0);
+                    rtn[1] = data.getFloat(1);
+                }
+                data.close();
+            }
+        }
+        return rtn;
     }
 
     // weather cities table ---

@@ -3,4 +3,6 @@
     <color name="default_list_menu_bg">#d7d7d7</color>
     <color name="default_list_menu_item_textcolor">#000000</color>
     <color name="default_calculator_diaplay_view_bg">#d6d6ad</color>
+    <color name="default_simple_txt_bg_press">#95caca</color>
+    <color name="default_simple_txt_bg_unpress">#ffffff</color>
 </resources>

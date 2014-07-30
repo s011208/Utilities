@@ -9,6 +9,10 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.bj4.yhh.utilities.DatabaseHelper;
 import com.bj4.yhh.utilities.util.Utils;
 
 import android.app.Service;
@@ -28,6 +32,10 @@ public class WeatherService extends Service {
 
     public static final String INTENT_KEY_WOEID = "get_woeid";
 
+    public static final String INTENT_KEY_LAT = "get_lat";
+
+    public static final String INTENT_KEY_LON = "get_lon";
+
     private File mRoot;
 
     private final ArrayList<Long> mParsingWoeid = new ArrayList<Long>();
@@ -43,59 +51,106 @@ public class WeatherService extends Service {
         if (intent != null) {
             Bundle extras = intent.getExtras();
             if (extras != null) {
-                Long woeid = extras.getLong(INTENT_KEY_WOEID);
-                if (woeid != null) {
-                    if (DEBUG)
-                        Log.d(TAG, "request to parse: " + woeid);
-                    if (mParsingWoeid.contains(woeid) == false) {
-                        mParsingWoeid.add(woeid);
-                        new ParserTask(woeid, mRoot, new ParserTask.ParseDoneCallback() {
-                            @Override
-                            public void done(long woeid) {
-                                mParsingWoeid.remove(woeid);
-                                WeatherService.this.sendBroadcast(new Intent(
-                                        Weather.INTENT_ON_DATA_UPDATE));
-                            }
-                        }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                    } else {
-                        Log.v(TAG, "woeid: " + woeid + " is parsing");
-                    }
+                long woeid = extras.getLong(INTENT_KEY_WOEID);
+                float lat = extras.getFloat(INTENT_KEY_LAT);
+                float lon = extras.getFloat(INTENT_KEY_LON);
+                if (woeid != 0) {
+                    parseWeatherData(woeid);
+                } else if (lat != DatabaseHelper.TABLE_CITIES_LIST_NOT_FOUND_DATA
+                        && lon != DatabaseHelper.TABLE_CITIES_LIST_NOT_FOUND_DATA) {
+                    parseCityIdData(lat, lon);
                 }
             }
         }
         return START_STICKY;
     }
 
-    public static class ParserTask extends AsyncTask<Void, Void, Void> {
+    private void parseCityIdData(float lat, float lon) {
+        new WeatherIdParserTask(lat, lon, new ParseDoneCallback() {
+            @Override
+            public void done(long woeid) {
+                if (woeid != 0) {
+                    DatabaseHelper.getInstance(WeatherService.this).addNewWoeid(woeid);
+                    parseWeatherData(woeid);
+                }
+                Intent intent = new Intent(Weather.INTENT_ON_ID_UPDATE);
+                intent.putExtra(Weather.INTENT_EXTRAS_ON_ID_UPDATE_RESULT, woeid != 0);
+                WeatherService.this.sendBroadcast(intent);
+            }
+        }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
 
-        public interface ParseDoneCallback {
-            public void done(long woeid);
+    private void parseWeatherData(long woeid) {
+        if (DEBUG)
+            Log.d(TAG, "request to parse: " + woeid);
+        if (mParsingWoeid.contains(woeid) == false) {
+            mParsingWoeid.add(woeid);
+            new WeatherDataParserTask(woeid, mRoot, new ParseDoneCallback() {
+                @Override
+                public void done(long woeid) {
+                    mParsingWoeid.remove(woeid);
+                    WeatherService.this.sendBroadcast(new Intent(Weather.INTENT_ON_DATA_UPDATE));
+                }
+            }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+            Log.v(TAG, "woeid: " + woeid + " is parsing");
         }
+    }
+
+    public interface ParseDoneCallback {
+        public void done(long woeid);
+    }
+
+    public static class WeatherIdParserTask extends AsyncTask<Void, Void, Void> {
+        private ParseDoneCallback mCallback;
+
+        private float mLat, mLon;
+
+        private Long mWoeid = 0l;
+
+        public WeatherIdParserTask(float lat, float lon, ParseDoneCallback callback) {
+            mLat = lat;
+            mLon = lon;
+            mCallback = callback;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            String url = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20geo.placefinder%20where%20text%3D%22"
+                    + mLat
+                    + "%2C"
+                    + mLon
+                    + "%22%20and%20gflags%3D%22R%22&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=";
+            String data = Utils.parseOnInternet(url);
+            try {
+                JSONObject result = new JSONObject(data).getJSONObject("query")
+                        .getJSONObject("results").getJSONObject("Result");
+                mWoeid = result.getLong("woeid");
+            } catch (JSONException e) {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            if (mCallback != null) {
+                mCallback.done(mWoeid);
+            }
+        }
+    }
+
+    public static class WeatherDataParserTask extends AsyncTask<Void, Void, Void> {
 
         private ParseDoneCallback mCallback;
 
-        private Long mWoeid;
+        private Long mWoeid = 0l;
 
         private File mRoot;
 
-        public ParserTask(Long woeid, File root, ParseDoneCallback cb) {
+        public WeatherDataParserTask(Long woeid, File root, ParseDoneCallback cb) {
             mWoeid = woeid;
             mRoot = root;
             mCallback = cb;
-        }
-
-        private static boolean writeToFile(final String filePath, final String data) {
-            Writer writer;
-            try {
-                writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath),
-                        "utf-8"));
-                writer.write(data);
-                writer.flush();
-                writer.close();
-                return true;
-            } catch (Exception e) {
-                return false;
-            }
         }
 
         @Override
@@ -111,7 +166,7 @@ public class WeatherService extends Service {
                 }
                 try {
                     file.createNewFile();
-                    writeToFile(file.getAbsolutePath(), data);
+                    Utils.writeToFile(file.getAbsolutePath(), data);
                 } catch (IOException e) {
                 }
                 if (DEBUG)

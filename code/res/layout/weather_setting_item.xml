@@ -1,0 +1,14 @@
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/weather_setting_item"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:marqueeRepeatLimit="marquee_forever"
+    android:maxLines="1"
+    android:padding="@dimen/dialog_content_padding"
+    android:text="@string/settings"
+    android:textColor="#000"
+    android:textSize="@dimen/dialog_content_textsize" >
+
+</TextView>
