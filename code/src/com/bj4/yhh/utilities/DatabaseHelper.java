@@ -1,6 +1,9 @@
 
 package com.bj4.yhh.utilities;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import com.bj4.yhh.utilities.listmenu.ListMenuItem;
@@ -37,6 +40,101 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return sInstance;
     }
 
+    // weather cities table +++
+    private static final String TABLE_CITIES_LIST = "cities_list";
+
+    private static final String TABLE_CITIES_LIST_ID = "city_id";
+
+    private static final String TABLE_CITIES_LIST_LON = "city_lon";
+
+    private static final String TABLE_CITIES_LIST_LAT = "city_lat";
+
+    private static final String TABLE_CITIES_LIST_NAME = "city_name";
+
+    private static final String TABLE_CITIES_LIST_NATION = "city_nation";
+
+    private void createCityListTable() {
+        getDatabase().execSQL(
+                "CREATE TABLE IF NOT EXISTS " + TABLE_CITIES_LIST + "(" + TABLE_CITIES_LIST_ID
+                        + " INTEGER PRIMARY KEY, " + TABLE_CITIES_LIST_LAT + " TEXT, "
+                        + TABLE_CITIES_LIST_LON + " TEXT, " + TABLE_CITIES_LIST_NAME + " TEXT, "
+                        + TABLE_CITIES_LIST_NATION + " TEXT)");
+    }
+
+    public boolean hasCitiesTableLoaded() {
+        boolean rtn = false;
+        SQLiteStatement state = getDatabase().compileStatement(
+                "select count(*) from " + TABLE_CITIES_LIST);
+        if (state != null) {
+            try {
+                if (state.simpleQueryForLong() == 0) {
+                    rtn = false;
+                } else {
+                    rtn = true;
+                }
+            } finally {
+                state.close();
+            }
+        }
+        return rtn;
+    }
+
+    public interface ProgressCallback {
+        public void progress(int progress);
+    }
+
+    public void loadCitiesTable(ProgressCallback cb) {
+        android.content.res.AssetManager am = mContext.getAssets();
+        try {
+            InputStream in = am.open("city_list.txt");
+            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+            byte[] data = new byte[2048];
+            int count = -1;
+            if (cb != null) {
+                cb.progress(1);
+            }
+            while ((count = in.read(data, 0, 2048)) != -1) {
+                outStream.write(data, 0, count);
+            }
+            if (cb != null) {
+                cb.progress(30);
+            }
+            data = null;
+            String[] dataArray = new String(outStream.toByteArray(), "ISO-8859-1").split("\n");
+            if (dataArray.length <= 0) {
+                return;
+            }
+            getDatabase().beginTransaction();
+            final float unit = 70 / (float)dataArray.length;
+            int counter = 0;
+            try {
+                for (String raw : dataArray) {
+                    ContentValues cv = new ContentValues();
+                    String[] rawArray = raw.split("\t");
+                    cv.put(TABLE_CITIES_LIST_ID, rawArray[0]);
+                    cv.put(TABLE_CITIES_LIST_LAT, rawArray[2]);
+                    cv.put(TABLE_CITIES_LIST_LON, rawArray[3]);
+                    cv.put(TABLE_CITIES_LIST_NAME, rawArray[1]);
+                    cv.put(TABLE_CITIES_LIST_NATION, rawArray[4]);
+                    getDatabase().insertOrThrow(TABLE_CITIES_LIST, null, cv);
+                    if (cb != null) {
+                        cb.progress((int)(30 + (++counter) * unit));
+                    }
+                }
+                getDatabase().setTransactionSuccessful();
+            } finally {
+                getDatabase().endTransaction();
+                if (cb != null) {
+                    cb.progress(100);
+                }
+                System.gc();
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "failed", e);
+        }
+    }
+
+    // weather cities table ---
     // weather +++
     public static final String WEATHER_TABLE = "weather";
 
@@ -194,6 +292,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         createListMenuTable();
         createWeatherTable();
+        createCityListTable();
     }
 
     @Override

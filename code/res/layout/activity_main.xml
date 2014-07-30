@@ -19,6 +19,15 @@
             android:gravity="center"
             android:textColor="#ffffff"
             android:textSize="@dimen/action_bar_title_textsize" />
+
+        <ImageView
+            android:id="@+id/action_bar_option"
+            android:layout_width="@dimen/action_bar_height"
+            android:layout_height="@dimen/action_bar_height"
+            android:layout_alignParentRight="true"
+            android:layout_margin="3dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_option_btn" />
     </RelativeLayout>
 
     <com.bj4.yhh.utilities.MainContainer

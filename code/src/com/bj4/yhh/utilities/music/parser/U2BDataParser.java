@@ -20,6 +20,7 @@ import android.util.Log;
 
 import com.bj4.yhh.utilities.music.MusicData;
 import com.bj4.yhh.utilities.music.MusicDatabaseHelper;
+import com.bj4.yhh.utilities.util.Utils;
 
 public class U2BDataParser implements MusicDatabaseHelper.Callback {
     // https://developers.google.com/youtube/2.0/developers_guide_protocol_api_query_parameters
@@ -79,7 +80,7 @@ public class U2BDataParser implements MusicDatabaseHelper.Callback {
                 for (MusicData data : musicData) {
                     ++counter;
                     String source = getSource(data);
-                    String rawData = parseOnInternet(source);
+                    String rawData = Utils.parseOnInternet(source);
                     try {
                         JSONArray entry = new JSONObject(rawData).getJSONObject("feed")
                                 .getJSONArray("entry");
@@ -112,28 +113,5 @@ public class U2BDataParser implements MusicDatabaseHelper.Callback {
 
     }
 
-    @SuppressWarnings("deprecation")
-    private static String parseOnInternet(String url) {
-        URL u;
-        InputStream is = null;
-        DataInputStream dis;
-        String s;
-        StringBuilder sb = new StringBuilder();
-        try {
-            u = new URL(url);
-            is = u.openStream();
-            dis = new DataInputStream(new BufferedInputStream(is));
-            while ((s = dis.readLine()) != null) {
-                sb.append(s);
-            }
-        } catch (Exception e) {
-        } finally {
-            try {
-                if (is != null)
-                    is.close();
-            } catch (IOException ioe) {
-            }
-        }
-        return sb.toString();
-    }
+
 }

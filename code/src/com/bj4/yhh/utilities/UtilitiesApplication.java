@@ -6,8 +6,10 @@ import java.util.ArrayList;
 import com.bj4.yhh.utilities.listmenu.ListMenuItem;
 import com.bj4.yhh.utilities.music.MusicDatabaseHelper;
 import com.bj4.yhh.utilities.music.parser.U2BDataParser;
+import com.bj4.yhh.utilities.weather.LoadCitiesListService;
 
 import android.app.Application;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.util.SparseArray;
 
@@ -17,11 +19,22 @@ public class UtilitiesApplication extends Application {
 
     public static final SparseArray<Integer> FRAGMENT_MATCH_SPARSE_ARRAY = new SparseArray<Integer>();
 
+    public static boolean sIsCitiesServiceLoading = false;
+
     @Override
     public void onCreate() {
         super.onCreate();
         refreshListMenuItem();
         initU2BDataParser();
+        loadCitiesListIfNeeded();
+    }
+
+    private void loadCitiesListIfNeeded() {
+        DatabaseHelper db = DatabaseHelper.getInstance(this);
+        if (db.hasCitiesTableLoaded() == false) {
+            sIsCitiesServiceLoading = true;
+            startService(new Intent(this, LoadCitiesListService.class));
+        }
     }
 
     private void initU2BDataParser() {

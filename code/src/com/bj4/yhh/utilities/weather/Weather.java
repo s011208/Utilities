@@ -30,6 +30,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class Weather extends FrameLayout {
+    private static final boolean DEBUG = true;
+
+    private static final String TAG = "QQQQ";
+
     public static final String INTENT_ON_DATA_UPDATE = "com.bj4.yhh.utilities.weather.on_data_update";
 
     private static LruCache<Long, WeatherData> sWeatherDataCache = new LruCache<Long, WeatherData>(
@@ -50,7 +54,6 @@ public class Weather extends FrameLayout {
     public Weather(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mContext = context;
-        mContext.startService(new Intent(mContext, WeatherService.class));
         init();
     }
 
@@ -196,6 +199,7 @@ public class Weather extends FrameLayout {
                 WeatherData wData = sWeatherDataCache.get(mWoeid);
                 String city = null, country = null, sWind = null, humidity = null, visibility = null, rise = null, set = null, currentTemp = null, currentText = null;
                 WeatherData.WeatherForecast f0 = null, f1 = null, f2 = null, f3 = null, f4 = null;
+                int currentCode;
                 if (wData == null) {
                     File file = new File(mContext.getFilesDir().getAbsolutePath() + File.separator
                             + WeatherService.FOLDER_NAME + File.separator + mWoeid);
@@ -219,33 +223,45 @@ public class Weather extends FrameLayout {
                                     "condition");
                             currentTemp = condition.getString("temp");
                             currentText = condition.getString("text");
+                            currentCode = condition.getInt("code");
                             JSONArray forecast = channel.getJSONObject("item").getJSONArray(
                                     "forecast");
                             for (int i = 0; i < forecast.length(); i++) {
                                 JSONObject f = forecast.getJSONObject(i);
                                 if (i == 0) {
                                     f0 = new WeatherData.WeatherForecast(f.getString("day"),
-                                            f.getString("high"), f.getString("low"));
+                                            f.getString("high"), f.getString("low"),
+                                            f.getInt("code"));
                                 } else if (i == 1) {
                                     f1 = new WeatherData.WeatherForecast(f.getString("day"),
-                                            f.getString("high"), f.getString("low"));
+                                            f.getString("high"), f.getString("low"),
+                                            f.getInt("code"));
                                 } else if (i == 2) {
                                     f2 = new WeatherData.WeatherForecast(f.getString("day"),
-                                            f.getString("high"), f.getString("low"));
+                                            f.getString("high"), f.getString("low"),
+                                            f.getInt("code"));
                                 } else if (i == 3) {
                                     f3 = new WeatherData.WeatherForecast(f.getString("day"),
-                                            f.getString("high"), f.getString("low"));
+                                            f.getString("high"), f.getString("low"),
+                                            f.getInt("code"));
                                 } else if (i == 4) {
                                     f4 = new WeatherData.WeatherForecast(f.getString("day"),
-                                            f.getString("high"), f.getString("low"));
+                                            f.getString("high"), f.getString("low"),
+                                            f.getInt("code"));
                                 }
                             }
                             sWeatherDataCache.put(mWoeid, new WeatherData(city, country, sWind,
-                                    humidity, visibility, rise, set, currentTemp, currentText, f0,
-                                    f1, f2, f3, f4));
+                                    humidity, visibility, rise, set, currentTemp, currentText,
+                                    currentCode, f0, f1, f2, f3, f4));
                         } catch (JSONException e) {
-                            Log.w("QQQQ", "failed", e);
+                            if (DEBUG)
+                                Log.w(TAG, "failed", e);
                         }
+                    } else {
+                        // request to parse
+                        Intent parse = new Intent(mContext, WeatherService.class);
+                        parse.putExtra(WeatherService.INTENT_KEY_WOEID, mWoeid);
+                        mContext.startService(parse);
                     }
                 } else {
                     city = wData.mCity;
@@ -257,6 +273,7 @@ public class Weather extends FrameLayout {
                     set = wData.mSunset;
                     currentTemp = wData.mCurrentTemp;
                     currentText = wData.mCurrentCondi;
+                    currentCode = wData.mCurrentCode;
                     f0 = wData.mF0;
                     f1 = wData.mF1;
                     f2 = wData.mF2;

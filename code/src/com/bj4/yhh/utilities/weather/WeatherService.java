@@ -1,56 +1,69 @@
 
 package com.bj4.yhh.utilities.weather;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.URL;
 import java.util.ArrayList;
 
-import com.bj4.yhh.utilities.DatabaseHelper;
+import com.bj4.yhh.utilities.util.Utils;
 
 import android.app.Service;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 
 public class WeatherService extends Service {
-    public static final String TAG = "QQQQ";
+    private static final boolean DEBUG = false;
+
+    private static final String TAG = "WeatherService";
 
     public static final String FOLDER_NAME = "weather_data";
 
+    public static final String INTENT_KEY_WOEID = "get_woeid";
+
     private File mRoot;
 
-    private static int mParserCounter = 0;
+    private final ArrayList<Long> mParsingWoeid = new ArrayList<Long>();
 
     @Override
     public void onCreate() {
         super.onCreate();
         createFolderIfNeeded();
-        ArrayList<WeatherWoeId> data = DatabaseHelper.getInstance(getApplicationContext())
-                .getWeatherWoeid();
-        mParserCounter = data.size();
-        for (WeatherWoeId woeid : data) {
-            new ParserTask(woeid.mWoeid, mRoot, new ParserTask.ParseDoneCallback() {
-                @Override
-                public void done(long woeid) {
-                    --mParserCounter;
-                    if (mParserCounter <= 0) {
-                        stopSelf();
-                        Log.w(TAG, "stopself");
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null) {
+            Bundle extras = intent.getExtras();
+            if (extras != null) {
+                Long woeid = extras.getLong(INTENT_KEY_WOEID);
+                if (woeid != null) {
+                    if (DEBUG)
+                        Log.d(TAG, "request to parse: " + woeid);
+                    if (mParsingWoeid.contains(woeid) == false) {
+                        mParsingWoeid.add(woeid);
+                        new ParserTask(woeid, mRoot, new ParserTask.ParseDoneCallback() {
+                            @Override
+                            public void done(long woeid) {
+                                mParsingWoeid.remove(woeid);
+                                WeatherService.this.sendBroadcast(new Intent(
+                                        Weather.INTENT_ON_DATA_UPDATE));
+                            }
+                        }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    } else {
+                        Log.v(TAG, "woeid: " + woeid + " is parsing");
                     }
-                    WeatherService.this.sendBroadcast(new Intent(Weather.INTENT_ON_DATA_UPDATE));
                 }
-            }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
         }
+        return START_STICKY;
     }
 
     public static class ParserTask extends AsyncTask<Void, Void, Void> {
@@ -69,31 +82,6 @@ public class WeatherService extends Service {
             mWoeid = woeid;
             mRoot = root;
             mCallback = cb;
-        }
-
-        @SuppressWarnings("deprecation")
-        private static String parseOnInternet(String url) {
-            URL u;
-            InputStream is = null;
-            DataInputStream dis;
-            String s;
-            StringBuilder sb = new StringBuilder();
-            try {
-                u = new URL(url);
-                is = u.openStream();
-                dis = new DataInputStream(new BufferedInputStream(is));
-                while ((s = dis.readLine()) != null) {
-                    sb.append(s);
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "parse failed", e);
-            } finally {
-                try {
-                    is.close();
-                } catch (IOException ioe) {
-                }
-            }
-            return sb.toString();
         }
 
         private static boolean writeToFile(final String filePath, final String data) {
@@ -115,7 +103,7 @@ public class WeatherService extends Service {
             String url = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%3D"
                     + mWoeid
                     + "&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=";
-            String data = parseOnInternet(url);
+            String data = Utils.parseOnInternet(url);
             if (data != null && TextUtils.isEmpty(data) == false) {
                 File file = new File(mRoot.getAbsolutePath() + File.separator + mWoeid);
                 if (file.exists()) {
@@ -126,7 +114,8 @@ public class WeatherService extends Service {
                     writeToFile(file.getAbsolutePath(), data);
                 } catch (IOException e) {
                 }
-                Log.d(TAG, data);
+                if (DEBUG)
+                    Log.d(TAG, data);
             }
             return null;
         }

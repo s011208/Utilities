@@ -43,6 +43,7 @@
         <service android:name="com.bj4.yhh.utilities.music.MusicPlayService" />
         <service android:name="com.bj4.yhh.utilities.music.MusicParseService" />
         <service android:name="com.bj4.yhh.utilities.weather.WeatherService" />
+        <service android:name="com.bj4.yhh.utilities.weather.LoadCitiesListService" />
     </application>
 
 </manifest>

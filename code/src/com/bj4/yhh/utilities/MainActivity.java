@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -49,6 +50,8 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
     private TextView mActionBarTitle;
 
     private BaseFragment mCalculatorFragment, mWeatherFragment, mMusicFragment;
+
+    private ImageView mOption;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,12 +90,15 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
         switch (targetFragment) {
             case FRAGMENT_CALCULATOR:
                 fragment = getCalculatorFragment();
+                mOption.setVisibility(View.GONE);
                 break;
             case FRAGMENT_WEATHER:
                 fragment = getWeatherFragment();
+                mOption.setVisibility(View.VISIBLE);
                 break;
             case FRAGMENT_MUSIC:
                 fragment = getMusicFragment();
+                mOption.setVisibility(View.VISIBLE);
                 break;
         }
         transaction.replace(R.id.main_container, fragment).commit();
@@ -134,6 +140,12 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
         });
         mActionBarTitle = (TextView)findViewById(R.id.action_bar_title);
         mActionBarTitle.setText(UtilitiesApplication.LIST_MENU_ITEMS.get(0).mContent);
+        mOption = (ImageView)findViewById(R.id.action_bar_option);
+        mOption.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
         mListMenu = (RelativeLayout)findViewById(R.id.list_menu);
         mListMenu.setTranslationX(-mListMenuWidth);
         mMainContainer = (FrameLayout)findViewById(R.id.main_container);
