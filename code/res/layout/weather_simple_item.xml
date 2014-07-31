@@ -1,0 +1,62 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <ImageView
+        android:id="@+id/weather_current_img"
+        android:layout_width="@dimen/weather_img_current_size"
+        android:layout_height="@dimen/weather_img_current_size"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="10dp"
+        android:scaleType="centerInside" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@+id/weather_current_img"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/weather_city"
+            android:layout_width="match_parent"
+            android:layout_height="0dip"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:textColor="#000"
+            android:textSize="16sp" >
+        </TextView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dip"
+            android:layout_weight="1"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/weather_current_temp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textColor="#000"
+                android:textSize="16sp" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/weather_current_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_marginLeft="15dp"
+                android:gravity="center"
+                android:textColor="#000"
+                android:textSize="12sp" >
+            </TextView>
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

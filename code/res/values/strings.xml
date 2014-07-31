@@ -9,6 +9,7 @@
     <string name="cancel">@android:string/cancel</string>
     <string name="settings">Settings</string>
     <string name="remove">Remove</string>
+    <string name="using_simple_weather_view">Using simple list</string>
 
     <string-array name="list_menu_item">
         <item>@string/item_calculator</item>

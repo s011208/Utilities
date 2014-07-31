@@ -2,6 +2,7 @@
 package com.bj4.yhh.utilities.weather;
 
 import com.bj4.yhh.utilities.R;
+import com.bj4.yhh.utilities.SettingManager;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -11,6 +12,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 
 public class WeatherOptionDialog extends DialogFragment {
@@ -29,7 +33,7 @@ public class WeatherOptionDialog extends DialogFragment {
     }
 
     private void initComponents() {
-        Context context = getActivity().getApplicationContext();
+        final Context context = getActivity().getApplicationContext();
         mContentView = ((LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.weather_option_dialog, null);
         TextView settings = (TextView)mContentView.findViewById(R.id.weather_option_setting);
@@ -39,6 +43,15 @@ public class WeatherOptionDialog extends DialogFragment {
                 dismiss();
                 WeatherSettingDialog dialog = WeatherSettingDialog.getNewInstance();
                 dialog.show(getFragmentManager(), "WeatherSettingDialog");
+            }
+        });
+        CheckBox simpleView = (CheckBox)mContentView
+                .findViewById(R.id.weather_option_using_simple_view);
+        simpleView.setChecked(SettingManager.getInstance(context).isWeatherUsingSimpleView());
+        simpleView.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SettingManager.getInstance(context).setWeatherUsingSimpleView(isChecked);
             }
         });
     }

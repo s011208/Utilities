@@ -14,9 +14,9 @@ import org.json.JSONObject;
 
 import com.bj4.yhh.utilities.DatabaseHelper;
 import com.bj4.yhh.utilities.R;
+import com.bj4.yhh.utilities.SettingManager;
 import com.bj4.yhh.utilities.UtilitiesApplication;
 import com.bj4.yhh.utilities.util.Utils;
-import com.bj4.yhh.utilities.weather.Weather.WeatherListAdapter.ViewHolder;
 
 import android.app.FragmentManager;
 import android.content.Context;
@@ -50,9 +50,15 @@ public class Weather extends FrameLayout {
 
     private Context mContext;
 
-    private WeatherListAdapter mAdapter;
+    private WeatherListCompositeAdapter mCompositeAdapter;
+
+    private WeatherListSimpleAdapter mSimpleAdapter;
+
+    private ListView mWeatherList;
 
     private FragmentManager mFragmentManager;
+
+    private boolean mIsUsingSimpleView = false;
 
     public Weather(Context context) {
         this(context, null);
@@ -65,6 +71,7 @@ public class Weather extends FrameLayout {
     public Weather(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mContext = context;
+        mIsUsingSimpleView = SettingManager.getInstance(mContext).isWeatherUsingSimpleView();
         init();
     }
 
@@ -73,17 +80,27 @@ public class Weather extends FrameLayout {
     }
 
     public void updateContent() {
-        if (mAdapter != null) {
-            mAdapter.notifyDataSetChanged();
+        mIsUsingSimpleView = SettingManager.getInstance(mContext).isWeatherUsingSimpleView();
+        if (mIsUsingSimpleView) {
+            if (mSimpleAdapter != null) {
+                mWeatherList.setAdapter(mSimpleAdapter);
+                mSimpleAdapter.notifyDataSetChanged();
+            } else {
+                initSimpleAdapter();
+            }
+        } else {
+            if (mCompositeAdapter != null) {
+                mWeatherList.setAdapter(mCompositeAdapter);
+                mCompositeAdapter.notifyDataSetChanged();
+            } else {
+                initCompositeAdapter();
+            }
         }
     }
 
-    private void init() {
-        View contentView = ((LayoutInflater)mContext
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.weather, null);
-        ListView mWeatherList = (ListView)contentView.findViewById(R.id.weather_data_list);
-        mAdapter = new WeatherListAdapter(mContext);
-        mWeatherList.setAdapter(mAdapter);
+    private void initCompositeAdapter() {
+        mCompositeAdapter = new WeatherListCompositeAdapter(mContext);
+        mWeatherList.setAdapter(mCompositeAdapter);
         mWeatherList.setOnItemClickListener(new OnItemClickListener() {
 
             @Override
@@ -95,7 +112,7 @@ public class Weather extends FrameLayout {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 if (mFragmentManager != null) {
-                    final long woeid = mAdapter.getItem(position).mWoeid;
+                    final long woeid = mCompositeAdapter.getItem(position).mWoeid;
                     WeatherData wData = UtilitiesApplication.sWeatherDataCache.get(woeid);
                     WeatherRemoveDialog dialog = WeatherRemoveDialog.getNewInstance(wData,
                             new WeatherRemoveDialog.Callback() {
@@ -103,7 +120,7 @@ public class Weather extends FrameLayout {
                                 @Override
                                 public void onPositiveClick() {
                                     DatabaseHelper.getInstance(mContext).removeWoeid(woeid);
-                                    mAdapter.notifyDataSetChanged();
+                                    mCompositeAdapter.notifyDataSetChanged();
                                 }
                             });
                     dialog.show(mFragmentManager, "WeatherRemoveDialog");
@@ -112,17 +129,151 @@ public class Weather extends FrameLayout {
                 return false;
             }
         });
+    }
+
+    private void initSimpleAdapter() {
+        mSimpleAdapter = new WeatherListSimpleAdapter(mContext);
+        mWeatherList.setAdapter(mSimpleAdapter);
+    }
+
+    private void init() {
+        View contentView = ((LayoutInflater)mContext
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.weather, null);
+        mWeatherList = (ListView)contentView.findViewById(R.id.weather_data_list);
+        if (mIsUsingSimpleView) {
+            initSimpleAdapter();
+        } else {
+            initCompositeAdapter();
+        }
         addView(contentView);
     }
 
-    public static class WeatherListAdapter extends BaseAdapter {
+    public static class WeatherListSimpleAdapter extends BaseAdapter {
         private Context mContext;
 
         private ArrayList<WeatherWoeId> mData;
 
         private LayoutInflater mInflater;
 
-        public WeatherListAdapter(Context c) {
+        public WeatherListSimpleAdapter(Context c) {
+            mContext = c;
+            mInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            init();
+        }
+
+        public void notifyDataSetChanged() {
+            init();
+            super.notifyDataSetChanged();
+        }
+
+        private void init() {
+            mData = DatabaseHelper.getInstance(mContext).getWeatherWoeid();
+        }
+
+        @Override
+        public int getCount() {
+            return mData.size();
+        }
+
+        @Override
+        public WeatherWoeId getItem(int position) {
+            return mData.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder holder = null;
+            if (convertView == null) {
+                convertView = mInflater.inflate(R.layout.weather_simple_item, null);
+                holder = new ViewHolder();
+                holder.mWeatherCity = (TextView)convertView.findViewById(R.id.weather_city);
+                holder.mWeatherCurrentTemp = (TextView)convertView
+                        .findViewById(R.id.weather_current_temp);
+                holder.mWeatherCurrentText = (TextView)convertView
+                        .findViewById(R.id.weather_current_text);
+                holder.mWeatherCurrentImg = (ImageView)convertView
+                        .findViewById(R.id.weather_current_img);
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolder)convertView.getTag();
+            }
+            new LoadWeatherDataTask(mContext, getItem(position).mWoeid, holder)
+                    .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            return convertView;
+        }
+
+        public static class LoadWeatherDataTask extends AsyncTask<Void, Void, Void> {
+
+            private long mWoeid;
+
+            private ViewHolder mHolder;
+
+            private Context mContext;
+
+            private String mWeatherCity, mWeatherCurrentTemp, mWeatherCurrentText;
+
+            private int mCurrentCode;
+
+            public LoadWeatherDataTask(Context c, long woeid, ViewHolder holder) {
+                mWoeid = woeid;
+                mHolder = holder;
+                mContext = c;
+            }
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                WeatherData wData = UtilitiesApplication.sWeatherDataCache.get(mWoeid);
+                String city = null, currentTemp = null, currentText = null;
+                int currentCode;
+                if (wData == null) {
+                    wData = Utils.parseWeatherData(mContext, mWoeid);
+                }
+                if (mHolder != null && wData != null) {
+                    city = wData.mCity;
+                    currentTemp = wData.mCurrentTemp;
+                    currentText = wData.mCurrentCondi;
+                    currentCode = wData.mCurrentCode;
+                    if (city != null) {
+                        mWeatherCity = city;
+                        mWeatherCurrentTemp = currentTemp;
+                        mWeatherCurrentText = currentText;
+                        mCurrentCode = currentCode;
+                    }
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void v) {
+                if (mHolder != null) {
+                    mHolder.mWeatherCity.setText(mWeatherCity);
+                    mHolder.mWeatherCurrentTemp.setText(mWeatherCurrentTemp);
+                    mHolder.mWeatherCurrentText.setText(mWeatherCurrentText);
+                    mHolder.mWeatherCurrentImg.setImageResource(Utils.getWeatherIcon(mCurrentCode));
+                }
+            }
+        }
+
+        public static class ViewHolder {
+            TextView mWeatherCity, mWeatherCurrentTemp, mWeatherCurrentText;
+
+            ImageView mWeatherCurrentImg;
+        }
+    }
+
+    public static class WeatherListCompositeAdapter extends BaseAdapter {
+        private Context mContext;
+
+        private ArrayList<WeatherWoeId> mData;
+
+        private LayoutInflater mInflater;
+
+        public WeatherListCompositeAdapter(Context c) {
             mContext = c;
             mInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             init();
@@ -156,7 +307,7 @@ public class Weather extends FrameLayout {
         public View getView(int position, View convertView, ViewGroup parent) {
             final ViewHolder holder;
             if (convertView == null) {
-                convertView = mInflater.inflate(R.layout.weather_item, null);
+                convertView = mInflater.inflate(R.layout.weather_composite_item, null);
                 holder = new ViewHolder();
                 holder.mWeatherCity = (TextView)convertView.findViewById(R.id.weather_city);
                 holder.mWeatherCountry = (TextView)convertView.findViewById(R.id.weather_country);
