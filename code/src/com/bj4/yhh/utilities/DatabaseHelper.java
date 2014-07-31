@@ -206,6 +206,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         getDatabase().insert(WEATHER_TABLE, null, cv);
     }
 
+    public void removeWoeid(long id) {
+        getDatabase().delete(WEATHER_TABLE, WEATHER_WOEID + "=" + id, null);
+    }
+
     public ArrayList<WeatherWoeId> getWeatherWoeid() {
         ArrayList<WeatherWoeId> rtn = new ArrayList<WeatherWoeId>();
         Cursor data = getDatabase().query(WEATHER_TABLE, null, null, null, null, null,

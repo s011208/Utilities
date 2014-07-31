@@ -44,6 +44,7 @@ public class WeatherFragment extends BaseFragment {
     @Override
     public void init() {
         mContentView = new Weather(mContext);
+        ((Weather)mContentView).setFragmentManager(getFragmentManager());
     }
 
 }

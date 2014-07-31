@@ -30,6 +30,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class WeatherSettingDialog extends DialogFragment {
+    private static final String TAG = "WeatherSettingDialog";
+
     private static ArrayList<String> sAllCities = new ArrayList<String>();
 
     private View mContentView;
@@ -70,7 +72,9 @@ public class WeatherSettingDialog extends DialogFragment {
                     if (mAdapter != null) {
                         mAdapter.notifyDataSetChanged();
                     }
+                    // find city
                 } else {
+                    // not find city
                 }
             } else if (Weather.INTENT_ON_DATA_UPDATE.equals(action)) {
                 if (mAdapter != null) {

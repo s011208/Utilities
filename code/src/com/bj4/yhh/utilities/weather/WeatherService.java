@@ -13,6 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bj4.yhh.utilities.DatabaseHelper;
+import com.bj4.yhh.utilities.UtilitiesApplication;
 import com.bj4.yhh.utilities.util.Utils;
 
 import android.app.Service;
@@ -89,6 +90,10 @@ public class WeatherService extends Service {
                 @Override
                 public void done(long woeid) {
                     mParsingWoeid.remove(woeid);
+                    WeatherData wData = Utils.parseWeatherData(WeatherService.this, woeid);
+                    if (wData != null) {
+                        UtilitiesApplication.sWeatherDataCache.put(woeid, wData);
+                    }
                     WeatherService.this.sendBroadcast(new Intent(Weather.INTENT_ON_DATA_UPDATE));
                 }
             }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);

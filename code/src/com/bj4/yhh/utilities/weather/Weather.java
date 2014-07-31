@@ -16,7 +16,9 @@ import com.bj4.yhh.utilities.DatabaseHelper;
 import com.bj4.yhh.utilities.R;
 import com.bj4.yhh.utilities.UtilitiesApplication;
 import com.bj4.yhh.utilities.util.Utils;
+import com.bj4.yhh.utilities.weather.Weather.WeatherListAdapter.ViewHolder;
 
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -26,15 +28,19 @@ import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 public class Weather extends FrameLayout {
     private static final boolean DEBUG = true;
 
-    private static final String TAG = "QQQQ";
+    private static final String TAG = "Weather";
 
     public static final String INTENT_ON_DATA_UPDATE = "com.bj4.yhh.utilities.weather.on_data_update";
 
@@ -45,6 +51,8 @@ public class Weather extends FrameLayout {
     private Context mContext;
 
     private WeatherListAdapter mAdapter;
+
+    private FragmentManager mFragmentManager;
 
     public Weather(Context context) {
         this(context, null);
@@ -60,6 +68,10 @@ public class Weather extends FrameLayout {
         init();
     }
 
+    public void setFragmentManager(FragmentManager fm) {
+        mFragmentManager = fm;
+    }
+
     public void updateContent() {
         if (mAdapter != null) {
             mAdapter.notifyDataSetChanged();
@@ -72,6 +84,34 @@ public class Weather extends FrameLayout {
         ListView mWeatherList = (ListView)contentView.findViewById(R.id.weather_data_list);
         mAdapter = new WeatherListAdapter(mContext);
         mWeatherList.setAdapter(mAdapter);
+        mWeatherList.setOnItemClickListener(new OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            }
+        });
+        mWeatherList.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                if (mFragmentManager != null) {
+                    final long woeid = mAdapter.getItem(position).mWoeid;
+                    WeatherData wData = UtilitiesApplication.sWeatherDataCache.get(woeid);
+                    WeatherRemoveDialog dialog = WeatherRemoveDialog.getNewInstance(wData,
+                            new WeatherRemoveDialog.Callback() {
+
+                                @Override
+                                public void onPositiveClick() {
+                                    DatabaseHelper.getInstance(mContext).removeWoeid(woeid);
+                                    mAdapter.notifyDataSetChanged();
+                                }
+                            });
+                    dialog.show(mFragmentManager, "WeatherRemoveDialog");
+                    return true;
+                }
+                return false;
+            }
+        });
         addView(contentView);
     }
 
@@ -128,6 +168,7 @@ public class Weather extends FrameLayout {
                 holder.mForecast2 = (TextView)convertView.findViewById(R.id.weather_forecast_2);
                 holder.mForecast3 = (TextView)convertView.findViewById(R.id.weather_forecast_3);
                 holder.mForecast4 = (TextView)convertView.findViewById(R.id.weather_forecast_4);
+                holder.mCurrentImg = (ImageView)convertView.findViewById(R.id.weather_current_img);
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder)convertView.getTag();
@@ -145,6 +186,8 @@ public class Weather extends FrameLayout {
             TextView mWeatherCurrentSubCondition;
 
             TextView mForecast0, mForecast1, mForecast2, mForecast3, mForecast4;
+
+            ImageView mCurrentImg;
         }
 
         public static class LoadWeatherDataTask extends AsyncTask<Void, Void, Void> {
@@ -155,6 +198,8 @@ public class Weather extends FrameLayout {
 
             private String mWeatherLocation, mWeatherCurrentCondition, mWeatherCurrentSubCondition,
                     mForecast0, mForecast1, mForecast2, mForecast3, mForecast4;
+
+            private int mCurrentCode, mF0Code, mF1Code, mF2Code, mF3Code, mF4Code;
 
             private Context mContext;
 
@@ -217,6 +262,12 @@ public class Weather extends FrameLayout {
                         mForecast2 = f2.mDay + "\n" + f2.mHigh + " / " + f2.mLow;
                         mForecast3 = f3.mDay + "\n" + f3.mHigh + " / " + f3.mLow;
                         mForecast4 = f4.mDay + "\n" + f4.mHigh + " / " + f4.mLow;
+                        mCurrentCode = currentCode;
+                        mF0Code = f0.mCode;
+                        mF1Code = f1.mCode;
+                        mF2Code = f2.mCode;
+                        mF3Code = f3.mCode;
+                        mF4Code = f4.mCode;
                     }
                 }
                 return null;
@@ -233,6 +284,7 @@ public class Weather extends FrameLayout {
                     mHolder.mForecast2.setText(mForecast2);
                     mHolder.mForecast3.setText(mForecast3);
                     mHolder.mForecast4.setText(mForecast4);
+                    mHolder.mCurrentImg.setImageResource(Utils.getWeatherIcon(mCurrentCode));
                 }
             }
         }
