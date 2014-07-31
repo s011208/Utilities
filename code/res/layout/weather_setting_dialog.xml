@@ -7,7 +7,7 @@
         android:id="@+id/weather_list_add_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
         android:background="@color/default_simple_txt_bg_press"
         android:orientation="horizontal" >
 
@@ -36,8 +36,22 @@
         android:id="@+id/weather_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/weather_list_add_panel"
-        android:layout_alignParentTop="true" >
+        android:layout_below="@+id/weather_list_add_panel" >
     </ListView>
+
+    <FrameLayout
+        android:id="@+id/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#99000000"
+        android:visibility="gone" >
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" >
+        </ProgressBar>
+    </FrameLayout>
 
 </RelativeLayout>

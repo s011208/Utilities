@@ -26,7 +26,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class WeatherSettingDialog extends DialogFragment {
@@ -39,6 +41,8 @@ public class WeatherSettingDialog extends DialogFragment {
     private Context mContext;
 
     private WeatherListAdapter mAdapter;
+
+    private FrameLayout mPbar;
 
     private AutoCompleteTextView mAutoCompleteText;
 
@@ -75,10 +79,16 @@ public class WeatherSettingDialog extends DialogFragment {
                     // find city
                 } else {
                     // not find city
+                    if (mPbar != null) {
+                        mPbar.setVisibility(View.GONE);
+                    }
                 }
             } else if (Weather.INTENT_ON_DATA_UPDATE.equals(action)) {
                 if (mAdapter != null) {
                     mAdapter.notifyDataSetChanged();
+                }
+                if (mPbar != null) {
+                    mPbar.setVisibility(View.GONE);
                 }
             }
         }
@@ -105,6 +115,9 @@ public class WeatherSettingDialog extends DialogFragment {
 
             @Override
             public void onClick(View v) {
+                if (mPbar != null) {
+                    mPbar.setVisibility(View.VISIBLE);
+                }
                 Intent intent = new Intent(mContext, WeatherService.class);
                 float[] info = DatabaseHelper.getInstance(mContext).getCityInfo(
                         mAutoCompleteText.getText().toString());
@@ -114,6 +127,7 @@ public class WeatherSettingDialog extends DialogFragment {
                 mAutoCompleteText.setText("");
             }
         });
+        mPbar = (FrameLayout)mContentView.findViewById(R.id.progress_bar);
     }
 
     private void refreshAutoCompleteTextContent() {
