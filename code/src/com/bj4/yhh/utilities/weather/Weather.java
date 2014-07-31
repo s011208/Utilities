@@ -158,16 +158,29 @@ public class Weather extends FrameLayout {
             if (convertView == null) {
                 convertView = mInflater.inflate(R.layout.weather_item, null);
                 holder = new ViewHolder();
-                holder.mWeatherLocation = (TextView)convertView.findViewById(R.id.weather_location);
-                holder.mWeatherCurrentCondition = (TextView)convertView
-                        .findViewById(R.id.weather_current_condition);
+                holder.mWeatherCity = (TextView)convertView.findViewById(R.id.weather_city);
+                holder.mWeatherCountry = (TextView)convertView.findViewById(R.id.weather_country);
+                holder.mWeatherCurrentTemp = (TextView)convertView
+                        .findViewById(R.id.weather_current_temp);
+                holder.mWeatherCurrentText = (TextView)convertView
+                        .findViewById(R.id.weather_current_text);
                 holder.mWeatherCurrentSubCondition = (TextView)convertView
                         .findViewById(R.id.weather_current_subcondition);
-                holder.mForecast0 = (TextView)convertView.findViewById(R.id.weather_forecast_0);
-                holder.mForecast1 = (TextView)convertView.findViewById(R.id.weather_forecast_1);
-                holder.mForecast2 = (TextView)convertView.findViewById(R.id.weather_forecast_2);
-                holder.mForecast3 = (TextView)convertView.findViewById(R.id.weather_forecast_3);
-                holder.mForecast4 = (TextView)convertView.findViewById(R.id.weather_forecast_4);
+                holder.mF0Day = (TextView)convertView.findViewById(R.id.weather_f0_day);
+                holder.mF0Temp = (TextView)convertView.findViewById(R.id.weather_f0_temp);
+                holder.mF0Img = (ImageView)convertView.findViewById(R.id.weather_f0_img);
+                holder.mF1Day = (TextView)convertView.findViewById(R.id.weather_f1_day);
+                holder.mF1Temp = (TextView)convertView.findViewById(R.id.weather_f1_temp);
+                holder.mF1Img = (ImageView)convertView.findViewById(R.id.weather_f1_img);
+                holder.mF2Day = (TextView)convertView.findViewById(R.id.weather_f2_day);
+                holder.mF2Temp = (TextView)convertView.findViewById(R.id.weather_f2_temp);
+                holder.mF2Img = (ImageView)convertView.findViewById(R.id.weather_f2_img);
+                holder.mF3Day = (TextView)convertView.findViewById(R.id.weather_f3_day);
+                holder.mF3Temp = (TextView)convertView.findViewById(R.id.weather_f3_temp);
+                holder.mF3Img = (ImageView)convertView.findViewById(R.id.weather_f3_img);
+                holder.mF4Day = (TextView)convertView.findViewById(R.id.weather_f4_day);
+                holder.mF4Temp = (TextView)convertView.findViewById(R.id.weather_f4_temp);
+                holder.mF4Img = (ImageView)convertView.findViewById(R.id.weather_f4_img);
                 holder.mCurrentImg = (ImageView)convertView.findViewById(R.id.weather_current_img);
                 convertView.setTag(holder);
             } else {
@@ -179,15 +192,16 @@ public class Weather extends FrameLayout {
         }
 
         public static class ViewHolder {
-            TextView mWeatherLocation;
+            TextView mWeatherCity, mWeatherCountry;
 
-            TextView mWeatherCurrentCondition;
+            TextView mWeatherCurrentTemp, mWeatherCurrentText;
 
             TextView mWeatherCurrentSubCondition;
 
-            TextView mForecast0, mForecast1, mForecast2, mForecast3, mForecast4;
+            TextView mF0Day, mF0Temp, mF1Day, mF1Temp, mF2Day, mF2Temp, mF3Day, mF3Temp, mF4Day,
+                    mF4Temp;
 
-            ImageView mCurrentImg;
+            ImageView mCurrentImg, mF0Img, mF1Img, mF2Img, mF3Img, mF4Img;
         }
 
         public static class LoadWeatherDataTask extends AsyncTask<Void, Void, Void> {
@@ -196,8 +210,9 @@ public class Weather extends FrameLayout {
 
             private ViewHolder mHolder;
 
-            private String mWeatherLocation, mWeatherCurrentCondition, mWeatherCurrentSubCondition,
-                    mForecast0, mForecast1, mForecast2, mForecast3, mForecast4;
+            private String mWeatherCity, mWeatherCountry, mWeatherCurrentTemp, mWeatherCurrentText,
+                    mWeatherCurrentSubCondition, mF0Day, mF0Temp, mF1Day, mF1Temp, mF2Day, mF2Temp,
+                    mF3Day, mF3Temp, mF4Day, mF4Temp;
 
             private int mCurrentCode, mF0Code, mF1Code, mF2Code, mF3Code, mF4Code;
 
@@ -229,9 +244,7 @@ public class Weather extends FrameLayout {
                 String city = null, country = null, sWind = null, humidity = null, visibility = null, rise = null, set = null, currentTemp = null, currentText = null;
                 WeatherData.WeatherForecast f0 = null, f1 = null, f2 = null, f3 = null, f4 = null;
                 int currentCode;
-                Log.d(TAG, "doInBackground: " + mWoeid);
                 if (wData == null) {
-                    Log.e(TAG, "wData == null: " + mWoeid);
                     wData = Utils.parseWeatherData(mContext, mWoeid);
                 }
                 if (mHolder != null && wData != null) {
@@ -251,17 +264,30 @@ public class Weather extends FrameLayout {
                     f3 = wData.mF3;
                     f4 = wData.mF4;
                     if (city != null) {
-                        mWeatherLocation = city + " ," + country;
+                        mWeatherCity = city;
+                        mWeatherCountry = country;
                         mWeatherCurrentSubCondition = "wind: " + sWind;
                         mWeatherCurrentSubCondition += "\nhumidity: " + humidity + "\nvisibility: "
                                 + visibility;
                         mWeatherCurrentSubCondition += "\nsunrise: " + rise + "\nsunset: " + set;
-                        mWeatherCurrentCondition = currentTemp + "\n" + currentText;
-                        mForecast0 = f0.mDay + "\n" + f0.mHigh + " / " + f0.mLow;
-                        mForecast1 = f1.mDay + "\n" + f1.mHigh + " / " + f1.mLow;
-                        mForecast2 = f2.mDay + "\n" + f2.mHigh + " / " + f2.mLow;
-                        mForecast3 = f3.mDay + "\n" + f3.mHigh + " / " + f3.mLow;
-                        mForecast4 = f4.mDay + "\n" + f4.mHigh + " / " + f4.mLow;
+                        mWeatherCurrentTemp = currentTemp;
+                        mWeatherCurrentText = currentText;
+                        mF0Day = f0.mDay;
+                        mF0Temp = f0.mHigh + " / " + f0.mLow;
+                        mF0Code = f0.mCode;
+                        mF1Day = f1.mDay;
+                        mF1Temp = f1.mHigh + " / " + f1.mLow;
+                        mF1Code = f1.mCode;
+                        mF2Day = f2.mDay;
+                        mF2Temp = f2.mHigh + " / " + f2.mLow;
+                        mF2Code = f2.mCode;
+                        mF3Day = f3.mDay;
+                        mF3Temp = f3.mHigh + " / " + f3.mLow;
+                        mF3Code = f3.mCode;
+                        mF4Day = f4.mDay;
+                        mF4Temp = f4.mHigh + " / " + f4.mLow;
+                        mF4Code = f4.mCode;
+
                         mCurrentCode = currentCode;
                         mF0Code = f0.mCode;
                         mF1Code = f1.mCode;
@@ -276,14 +302,26 @@ public class Weather extends FrameLayout {
             @Override
             protected void onPostExecute(Void v) {
                 if (mHolder != null) {
-                    mHolder.mWeatherLocation.setText(mWeatherLocation);
-                    mHolder.mWeatherCurrentCondition.setText(mWeatherCurrentCondition);
+                    mHolder.mWeatherCity.setText(mWeatherCity);
+                    mHolder.mWeatherCountry.setText(mWeatherCountry);
+                    mHolder.mWeatherCurrentTemp.setText(mWeatherCurrentTemp);
+                    mHolder.mWeatherCurrentText.setText(mWeatherCurrentText);
                     mHolder.mWeatherCurrentSubCondition.setText(mWeatherCurrentSubCondition);
-                    mHolder.mForecast0.setText(mForecast0);
-                    mHolder.mForecast1.setText(mForecast1);
-                    mHolder.mForecast2.setText(mForecast2);
-                    mHolder.mForecast3.setText(mForecast3);
-                    mHolder.mForecast4.setText(mForecast4);
+                    mHolder.mF0Day.setText(mF0Day);
+                    mHolder.mF0Temp.setText(mF0Temp);
+                    mHolder.mF0Img.setImageResource(Utils.getWeatherIcon(mF0Code));
+                    mHolder.mF1Day.setText(mF1Day);
+                    mHolder.mF1Temp.setText(mF1Temp);
+                    mHolder.mF1Img.setImageResource(Utils.getWeatherIcon(mF1Code));
+                    mHolder.mF2Day.setText(mF2Day);
+                    mHolder.mF2Temp.setText(mF2Temp);
+                    mHolder.mF2Img.setImageResource(Utils.getWeatherIcon(mF2Code));
+                    mHolder.mF3Day.setText(mF3Day);
+                    mHolder.mF3Temp.setText(mF3Temp);
+                    mHolder.mF3Img.setImageResource(Utils.getWeatherIcon(mF3Code));
+                    mHolder.mF4Day.setText(mF4Day);
+                    mHolder.mF4Temp.setText(mF4Temp);
+                    mHolder.mF4Img.setImageResource(Utils.getWeatherIcon(mF4Code));
                     mHolder.mCurrentImg.setImageResource(Utils.getWeatherIcon(mCurrentCode));
                 }
             }

@@ -109,7 +109,7 @@ public class WeatherSettingDialog extends DialogFragment {
         mWeatherList.setAdapter(mAdapter);
         mAutoCompleteText = (AutoCompleteTextView)mContentView
                 .findViewById(R.id.weather_list_auto_c_txt);
-        refreshAutoCompleteTextContent();
+        mAllCitiesLoader.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         TextView confirm = (TextView)mContentView.findViewById(R.id.weather_list_add);
         confirm.setOnClickListener(new OnClickListener() {
 
@@ -130,14 +130,25 @@ public class WeatherSettingDialog extends DialogFragment {
         mPbar = (FrameLayout)mContentView.findViewById(R.id.progress_bar);
     }
 
-    private void refreshAutoCompleteTextContent() {
-        if (sAllCities.isEmpty()) {
-            sAllCities = DatabaseHelper.getInstance(mContext).getAllCitiesName();
+    private AsyncTask<Void, Void, Void> mAllCitiesLoader = new AsyncTask<Void, Void, Void>() {
+        @Override
+        protected void onPostExecute(Void v) {
+            ArrayAdapter<String> citiesAdapter = new ArrayAdapter<String>(mContext,
+                    R.layout.auto_complete_item_view, sAllCities);
+            mAutoCompleteText.setAdapter(citiesAdapter);
+            if (mPbar != null) {
+                mPbar.setVisibility(View.GONE);
+            }
         }
-        ArrayAdapter<String> citiesAdapter = new ArrayAdapter<String>(mContext,
-                R.layout.auto_complete_item_view, sAllCities);
-        mAutoCompleteText.setAdapter(citiesAdapter);
-    }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            if (sAllCities.isEmpty()) {
+                sAllCities = DatabaseHelper.getInstance(mContext).getAllCitiesName();
+            }
+            return null;
+        }
+    };
 
     public static class WeatherListAdapter extends BaseAdapter {
         private Context mContext;
@@ -202,33 +213,6 @@ public class WeatherSettingDialog extends DialogFragment {
                 return;
             }
             txt.setText(wData.mCity + ", " + wData.mCountry);
-        }
-
-        public static class WeatherDataLoader extends AsyncTask<Void, Void, Void> {
-            private TextView mTxt;
-
-            private Context mContext;
-
-            private Long mWoeid;
-
-            private WeatherData mWeatherData;
-
-            public WeatherDataLoader(TextView txt, Context ctx, Long woeid) {
-                mTxt = txt;
-                mContext = ctx;
-                mWoeid = woeid;
-            }
-
-            @Override
-            protected Void doInBackground(Void... params) {
-                mWeatherData = Utils.parseWeatherData(mContext, mWoeid);
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void v) {
-                setListItemContent(mTxt, mWeatherData);
-            }
         }
 
         public static class ViewHolder {

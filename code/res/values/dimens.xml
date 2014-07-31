@@ -27,4 +27,9 @@
     <!-- dialog -->
     <dimen name="dialog_content_textsize">20sp</dimen>
     <dimen name="dialog_content_padding">12dp</dimen>
+    <!-- weather -->
+    <dimen name="weather_img_current_size">60dp</dimen>
+    <dimen name="weather_img_forecast_size">30dp</dimen>
+    <dimen name="weather_txt_margin_img_current">-6dp</dimen>
+    <dimen name="weather_txt_margin_img_forecast">-5dp</dimen>
 </resources>
