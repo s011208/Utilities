@@ -16,7 +16,6 @@ import android.util.LruCache;
 import android.util.SparseArray;
 
 public class UtilitiesApplication extends Application {
-
     public static final ArrayList<ListMenuItem> LIST_MENU_ITEMS = new ArrayList<ListMenuItem>();
 
     public static final SparseArray<Integer> FRAGMENT_MATCH_SPARSE_ARRAY = new SparseArray<Integer>();

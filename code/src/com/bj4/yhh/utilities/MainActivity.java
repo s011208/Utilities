@@ -1,6 +1,14 @@
 
 package com.bj4.yhh.utilities;
 
+import java.util.HashMap;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.bj4.yhh.utilities.analytics.Analytics;
+import com.bj4.yhh.utilities.analytics.flurry.FlurryTracker;
+import com.bj4.yhh.utilities.analytics.mixpanel.MixpanelTracker;
 import com.bj4.yhh.utilities.calculator.CalculatorFragment;
 import com.bj4.yhh.utilities.fragments.BaseFragment;
 import com.bj4.yhh.utilities.listmenu.ListMenu;
@@ -8,6 +16,7 @@ import com.bj4.yhh.utilities.listmenu.ListMenu.OnListMenuSelectedCallback;
 import com.bj4.yhh.utilities.music.MusicFragment;
 import com.bj4.yhh.utilities.weather.WeatherFragment;
 import com.bj4.yhh.utilities.weather.WeatherOptionDialog;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
 
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
@@ -61,9 +70,25 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
+        MixpanelTracker.getTracker(this); // init
         init();
         initListMenuAnimations();
         switchFragment(UtilitiesApplication.FRAGMENT_MATCH_SPARSE_ARRAY.get(0), false);
+    }
+
+    public void onDestroy() {
+        MixpanelTracker.getTracker(this).flush(); // send data while onDestroy
+        super.onDestroy();
+    }
+
+    public void onStart() {
+        super.onStart();
+        FlurryTracker.startSession(this);
+    }
+
+    public void onStop() {
+        FlurryTracker.endSession(this);
+        super.onStop();
     }
 
     private synchronized MusicFragment getMusicFragment() {
@@ -93,18 +118,37 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
         }
         Fragment fragment = getCalculatorFragment();
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        HashMap<String, String> flurryTrackMap = new HashMap<String, String>();
         switch (targetFragment) {
             case FRAGMENT_CALCULATOR:
                 fragment = getCalculatorFragment();
                 mOption.setVisibility(View.GONE);
+                MixpanelTracker.getTracker(this).track(Analytics.ViewingFragment.EVENT,
+                        Analytics.ViewingFragment.VIEWING_FRAGMENT,
+                        Analytics.ViewingFragment.FRAGMENT_CALCULATOR);
+                flurryTrackMap.put(Analytics.ViewingFragment.VIEWING_FRAGMENT,
+                        Analytics.ViewingFragment.FRAGMENT_CALCULATOR);
+                FlurryTracker.getInstance().track(Analytics.ViewingFragment.EVENT, flurryTrackMap);
                 break;
             case FRAGMENT_WEATHER:
                 fragment = getWeatherFragment();
                 mOption.setVisibility(View.VISIBLE);
+                MixpanelTracker.getTracker(this).track(Analytics.ViewingFragment.EVENT,
+                        Analytics.ViewingFragment.VIEWING_FRAGMENT,
+                        Analytics.ViewingFragment.FRAGMENT_WEATHER);
+                flurryTrackMap.put(Analytics.ViewingFragment.VIEWING_FRAGMENT,
+                        Analytics.ViewingFragment.FRAGMENT_WEATHER);
+                FlurryTracker.getInstance().track(Analytics.ViewingFragment.EVENT, flurryTrackMap);
                 break;
             case FRAGMENT_MUSIC:
                 fragment = getMusicFragment();
                 mOption.setVisibility(View.GONE);
+                MixpanelTracker.getTracker(this).track(Analytics.ViewingFragment.EVENT,
+                        Analytics.ViewingFragment.VIEWING_FRAGMENT,
+                        Analytics.ViewingFragment.FRAGMENT_MUSIC);
+                flurryTrackMap.put(Analytics.ViewingFragment.VIEWING_FRAGMENT,
+                        Analytics.ViewingFragment.FRAGMENT_MUSIC);
+                FlurryTracker.getInstance().track(Analytics.ViewingFragment.EVENT, flurryTrackMap);
                 break;
             default:
                 return;

@@ -22,6 +22,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="com.android.vending.BILLING" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
 
     <application
         android:name="com.bj4.yhh.utilities.UtilitiesApplication"
@@ -44,6 +45,18 @@
         <service android:name="com.bj4.yhh.utilities.music.MusicParseService" />
         <service android:name="com.bj4.yhh.utilities.weather.WeatherService" />
         <service android:name="com.bj4.yhh.utilities.weather.LoadCitiesListService" />
+
+        <receiver
+            android:name="com.mixpanel.android.mpmetrics.InstallReferrerReceiver"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name="com.mixpanel.android.surveys.SurveyActivity"
+            android:theme="@style/com_mixpanel_android_SurveyActivityTheme" />
     </application>
 
 </manifest>
