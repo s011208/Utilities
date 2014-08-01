@@ -1,6 +1,7 @@
 
 package com.bj4.yhh.utilities;
 
+import com.bj4.yhh.utilities.analytics.Analytics;
 import com.bj4.yhh.utilities.weather.Weather;
 
 import android.content.Context;
@@ -11,6 +12,8 @@ public class SettingManager {
     private static final String WEATHER_HAS_INIT = "weather_has_init";
 
     private static final String WEATHER_USING_SIMPLE_VIEW = "weather_simple_view";
+
+    private static final String SETTINGS_ENABLE_GA = "enable_ga";
 
     private Context mContext;
 
@@ -27,6 +30,15 @@ public class SettingManager {
 
     private SettingManager(Context context) {
         mContext = context.getApplicationContext();
+    }
+
+    public boolean isEnableGa() {
+        return getPref().getBoolean(SETTINGS_ENABLE_GA, false);
+    }
+
+    public void setEnableGa(final boolean enableGa) {
+        getPref().edit().putBoolean(SETTINGS_ENABLE_GA, enableGa).apply();
+        Analytics.ENABLE_TRACKER = enableGa;
     }
 
     public boolean isWeatherUsingSimpleView() {

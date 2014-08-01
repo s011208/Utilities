@@ -3,7 +3,7 @@ package com.bj4.yhh.utilities.analytics;
 
 public class Analytics {
 
-    public static boolean ENABLE_TRACKER = true;
+    public static boolean ENABLE_TRACKER = false;
 
     public static class ViewingFragment {
         public static final String EVENT = "change fragment";

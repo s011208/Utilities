@@ -55,6 +55,7 @@ public class UtilitiesApplication extends Application {
         String calculator = r.getString(R.string.item_calculator);
         String weather = r.getString(R.string.item_weather);
         String music = r.getString(R.string.item_music);
+        String settings = r.getString(R.string.item_settings);
         for (int i = 0; i < LIST_MENU_ITEMS.size(); i++) {
             ListMenuItem item = LIST_MENU_ITEMS.get(i);
             if (calculator.equals(item.mContent)) {
@@ -63,6 +64,8 @@ public class UtilitiesApplication extends Application {
                 FRAGMENT_MATCH_SPARSE_ARRAY.put(i, MainActivity.FRAGMENT_WEATHER);
             } else if (music.equals(item.mContent)) {
                 FRAGMENT_MATCH_SPARSE_ARRAY.put(i, MainActivity.FRAGMENT_MUSIC);
+            } else if (settings.equals(item.mContent)) {
+                FRAGMENT_MATCH_SPARSE_ARRAY.put(i, MainActivity.FRAGMENT_SETTINGS);
             }
         }
     }

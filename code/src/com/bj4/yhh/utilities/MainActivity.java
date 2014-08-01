@@ -14,6 +14,7 @@ import com.bj4.yhh.utilities.fragments.BaseFragment;
 import com.bj4.yhh.utilities.listmenu.ListMenu;
 import com.bj4.yhh.utilities.listmenu.ListMenu.OnListMenuSelectedCallback;
 import com.bj4.yhh.utilities.music.MusicFragment;
+import com.bj4.yhh.utilities.settings.SettingsFragment;
 import com.bj4.yhh.utilities.weather.WeatherFragment;
 import com.bj4.yhh.utilities.weather.WeatherOptionDialog;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
@@ -45,6 +46,8 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
 
     public static final int FRAGMENT_MUSIC = 2;
 
+    public static final int FRAGMENT_SETTINGS = 3;
+
     private int mCurrentFragment = -1;
 
     private RelativeLayout mActionBar, mListMenu;
@@ -61,7 +64,7 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
 
     private TextView mActionBarTitle;
 
-    private BaseFragment mCalculatorFragment, mWeatherFragment, mMusicFragment;
+    private BaseFragment mCalculatorFragment, mWeatherFragment, mMusicFragment, mSettingsFragment;
 
     private ImageView mOption;
 
@@ -89,6 +92,13 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
     public void onStop() {
         FlurryTracker.endSession(this);
         super.onStop();
+    }
+
+    private synchronized SettingsFragment getSettingsFragment() {
+        if (mSettingsFragment == null) {
+            mSettingsFragment = new SettingsFragment();
+        }
+        return (SettingsFragment)mSettingsFragment;
     }
 
     private synchronized MusicFragment getMusicFragment() {
@@ -142,6 +152,16 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
                 break;
             case FRAGMENT_MUSIC:
                 fragment = getMusicFragment();
+                mOption.setVisibility(View.GONE);
+                MixpanelTracker.getTracker(this).track(Analytics.ViewingFragment.EVENT,
+                        Analytics.ViewingFragment.VIEWING_FRAGMENT,
+                        Analytics.ViewingFragment.FRAGMENT_MUSIC);
+                flurryTrackMap.put(Analytics.ViewingFragment.VIEWING_FRAGMENT,
+                        Analytics.ViewingFragment.FRAGMENT_MUSIC);
+                FlurryTracker.getInstance().track(Analytics.ViewingFragment.EVENT, flurryTrackMap);
+                break;
+            case FRAGMENT_SETTINGS:
+                fragment = getSettingsFragment();
                 mOption.setVisibility(View.GONE);
                 MixpanelTracker.getTracker(this).track(Analytics.ViewingFragment.EVENT,
                         Analytics.ViewingFragment.VIEWING_FRAGMENT,

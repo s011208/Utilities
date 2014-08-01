@@ -261,15 +261,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     if (data != null) {
                         try {
                             ArrayList<String> goingToAdd = new ArrayList<String>();
-                            while (data.moveToNext()) {
-                                String txt = data.getString(data
-                                        .getColumnIndex(LIST_MENU_NAME_COLUMN));
-                                for (String item : listMenu) {
-                                    if (txt.equals(item)) {
-                                        goingToAdd.add(txt);
-                                        break;
-                                    }
-                                }
+                            for (long i = count; i < listMenu.length; i++) {
+                                goingToAdd.add(listMenu[(int)i]);
                             }
                             for (String item : goingToAdd) {
                                 ContentValues cv = new ContentValues();
