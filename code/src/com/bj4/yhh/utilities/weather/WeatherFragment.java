@@ -7,9 +7,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 
+import com.bj4.yhh.utilities.UpdateManagerService;
 import com.bj4.yhh.utilities.fragments.BaseFragment;
 
-public class WeatherFragment extends BaseFragment {
+public class WeatherFragment extends BaseFragment implements Weather.RequestCallback {
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
@@ -45,6 +46,15 @@ public class WeatherFragment extends BaseFragment {
     public void init() {
         mContentView = new Weather(mContext);
         ((Weather)mContentView).setFragmentManager(getFragmentManager());
+        ((Weather)mContentView).setCallback(this);
+    }
+
+    @Override
+    public void requestUpdate() {
+        Intent startIntent = new Intent(mContext, UpdateManagerService.class);
+        startIntent.putExtra(UpdateManagerService.UPDATE_TYPE,
+                UpdateManagerService.UPDATE_TYPE_WEATHER);
+        mContext.startService(startIntent);
     }
 
 }

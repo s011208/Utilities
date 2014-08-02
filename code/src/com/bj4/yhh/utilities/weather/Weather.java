@@ -22,6 +22,8 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.LruCache;
@@ -48,6 +50,12 @@ public class Weather extends FrameLayout {
 
     public static final String INTENT_EXTRAS_ON_ID_UPDATE_RESULT = "com.bj4.yhh.utilities.weather.on_id_update_result";
 
+    public interface RequestCallback {
+        public void requestUpdate();
+    }
+
+    private RequestCallback mCallback;
+
     private Context mContext;
 
     private WeatherListCompositeAdapter mCompositeAdapter;
@@ -57,6 +65,8 @@ public class Weather extends FrameLayout {
     private ListView mWeatherList;
 
     private FragmentManager mFragmentManager;
+
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private boolean mIsUsingSimpleView = false;
 
@@ -75,27 +85,37 @@ public class Weather extends FrameLayout {
         init();
     }
 
+    public void setCallback(RequestCallback cb) {
+        mCallback = cb;
+    }
+
     public void setFragmentManager(FragmentManager fm) {
         mFragmentManager = fm;
     }
 
     public void updateContent() {
+        boolean previousView = mIsUsingSimpleView;
+        boolean hasChanged = false;
         mIsUsingSimpleView = SettingManager.getInstance(mContext).isWeatherUsingSimpleView();
+        hasChanged = mIsUsingSimpleView != previousView;
         if (mIsUsingSimpleView) {
             if (mSimpleAdapter != null) {
-                mWeatherList.setAdapter(mSimpleAdapter);
+                if (hasChanged)
+                    mWeatherList.setAdapter(mSimpleAdapter);
                 mSimpleAdapter.notifyDataSetChanged();
             } else {
                 initSimpleAdapter();
             }
         } else {
             if (mCompositeAdapter != null) {
-                mWeatherList.setAdapter(mCompositeAdapter);
+                if (hasChanged)
+                    mWeatherList.setAdapter(mCompositeAdapter);
                 mCompositeAdapter.notifyDataSetChanged();
             } else {
                 initCompositeAdapter();
             }
         }
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     private void initCompositeAdapter() {
@@ -140,6 +160,21 @@ public class Weather extends FrameLayout {
         View contentView = ((LayoutInflater)mContext
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.weather, null);
         mWeatherList = (ListView)contentView.findViewById(R.id.weather_data_list);
+        mSwipeRefreshLayout = (SwipeRefreshLayout)contentView
+                .findViewById(R.id.weather_swipe_refresh);
+        mSwipeRefreshLayout.setColorScheme(android.R.color.white, android.R.color.holo_green_light,
+                android.R.color.holo_orange_light, android.R.color.holo_red_light);
+        mSwipeRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
+
+            @Override
+            public void onRefresh() {
+                if (mCallback == null) {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                } else {
+                    mCallback.requestUpdate();
+                }
+            }
+        });
         if (mIsUsingSimpleView) {
             initSimpleAdapter();
         } else {

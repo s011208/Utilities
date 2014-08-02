@@ -3,10 +3,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <ListView
-        android:id="@+id/weather_data_list"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/weather_swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
-    </ListView>
+
+        <ListView
+            android:id="@+id/weather_data_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="2dp" >
+        </ListView>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </RelativeLayout>
