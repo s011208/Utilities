@@ -12,10 +12,13 @@ import com.bj4.yhh.utilities.weather.WeatherData;
 import android.app.Application;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.util.Log;
 import android.util.LruCache;
 import android.util.SparseArray;
 
 public class UtilitiesApplication extends Application {
+    private static final String TAG = "UtilitiesApplication";
+
     public static final ArrayList<ListMenuItem> LIST_MENU_ITEMS = new ArrayList<ListMenuItem>();
 
     public static final SparseArray<Integer> FRAGMENT_MATCH_SPARSE_ARRAY = new SparseArray<Integer>();
@@ -31,6 +34,13 @@ public class UtilitiesApplication extends Application {
         refreshListMenuItem();
         initU2BDataParser();
         loadCitiesListIfNeeded();
+        startUpdateManagerService();
+    }
+
+    private void startUpdateManagerService() {
+        Intent intent = new Intent(this, UpdateManagerService.class);
+        intent.putExtra(UpdateManagerService.UPDATE_TYPE, UpdateManagerService.UPDATE_NONE);
+        startService(intent);
     }
 
     private void loadCitiesListIfNeeded() {

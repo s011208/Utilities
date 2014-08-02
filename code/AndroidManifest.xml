@@ -45,7 +45,14 @@
         <service android:name="com.bj4.yhh.utilities.music.MusicParseService" />
         <service android:name="com.bj4.yhh.utilities.weather.WeatherService" />
         <service android:name="com.bj4.yhh.utilities.weather.LoadCitiesListService" />
+        <service android:name="com.bj4.yhh.utilities.UpdateManagerService" />
 
+        <receiver android:name="com.bj4.yhh.utilities.BootCompletedReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <!-- mix panel -->
         <receiver
             android:name="com.mixpanel.android.mpmetrics.InstallReferrerReceiver"
             android:exported="true" >
@@ -53,10 +60,10 @@
                 <action android:name="com.android.vending.INSTALL_REFERRER" />
             </intent-filter>
         </receiver>
-
-        <activity
-            android:name="com.mixpanel.android.surveys.SurveyActivity"
-            android:theme="@style/com_mixpanel_android_SurveyActivityTheme" />
+        <!-- mix panel -->
+        <!-- <activity -->
+        <!-- android:name="com.mixpanel.android.surveys.SurveyActivity" -->
+        <!-- android:theme="@style/com_mixpanel_android_SurveyActivityTheme" /> -->
     </application>
 
 </manifest>

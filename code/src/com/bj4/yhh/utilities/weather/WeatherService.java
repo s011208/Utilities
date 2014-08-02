@@ -37,6 +37,8 @@ public class WeatherService extends Service {
 
     public static final String INTENT_KEY_LON = "get_lon";
 
+    public static final String INTENT_UPDATE_ALL = "update_all";
+
     private File mRoot;
 
     private final ArrayList<Long> mParsingWoeid = new ArrayList<Long>();
@@ -52,18 +54,26 @@ public class WeatherService extends Service {
         if (intent != null) {
             Bundle extras = intent.getExtras();
             if (extras != null) {
-                long woeid = extras.getLong(INTENT_KEY_WOEID);
-                float lat = extras.getFloat(INTENT_KEY_LAT);
-                float lon = extras.getFloat(INTENT_KEY_LON);
-                if (woeid != 0) {
-                    parseWeatherData(woeid);
-                } else if (lat != DatabaseHelper.TABLE_CITIES_LIST_NOT_FOUND_DATA
-                        && lon != DatabaseHelper.TABLE_CITIES_LIST_NOT_FOUND_DATA) {
-                    parseCityIdData(lat, lon);
+                boolean updateAll = extras.getBoolean(INTENT_UPDATE_ALL, false);
+                if (updateAll) {
+                    Log.d(TAG, "update all");
+                    parseAllWeatherData(DatabaseHelper.getInstance(this).getWeatherWoeid());
+                } else {
+                    long woeid = extras.getLong(INTENT_KEY_WOEID);
+                    float lat = extras.getFloat(INTENT_KEY_LAT);
+                    float lon = extras.getFloat(INTENT_KEY_LON);
+                    if (woeid != 0) {
+                        Log.d(TAG, "update woeid");
+                        parseWeatherData(woeid);
+                    } else if (lat != DatabaseHelper.TABLE_CITIES_LIST_NOT_FOUND_DATA
+                            && lon != DatabaseHelper.TABLE_CITIES_LIST_NOT_FOUND_DATA) {
+                        Log.d(TAG, "update city id");
+                        parseCityIdData(lat, lon);
+                    }
                 }
             }
         }
-        return START_STICKY;
+        return Service.START_NOT_STICKY;
     }
 
     private void parseCityIdData(float lat, float lon) {
@@ -99,6 +109,34 @@ public class WeatherService extends Service {
             }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
             Log.v(TAG, "woeid: " + woeid + " is parsing");
+        }
+    }
+
+    private void parseAllWeatherData(ArrayList<WeatherWoeId> woeids) {
+        if (woeids == null) {
+            return;
+        }
+        for (int i = 0; i < woeids.size(); i++) {
+            long woeid = woeids.get(i).mWoeid;
+            if (mParsingWoeid.contains(woeid) == false) {
+                mParsingWoeid.add(woeid);
+                new WeatherDataParserTask(woeid, mRoot, new ParseDoneCallback() {
+                    @Override
+                    public void done(long woeid) {
+                        mParsingWoeid.remove(woeid);
+                        WeatherData wData = Utils.parseWeatherData(WeatherService.this, woeid);
+                        if (wData != null) {
+                            UtilitiesApplication.sWeatherDataCache.put(woeid, wData);
+                        }
+                        if (mParsingWoeid.isEmpty()) {
+                            WeatherService.this.sendBroadcast(new Intent(
+                                    Weather.INTENT_ON_DATA_UPDATE));
+                        }
+                    }
+                }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            } else {
+                Log.v(TAG, "woeid: " + woeid + " is parsing");
+            }
         }
     }
 
