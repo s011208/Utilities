@@ -10,6 +10,7 @@ import com.bj4.yhh.utilities.analytics.Analytics;
 import com.bj4.yhh.utilities.analytics.flurry.FlurryTracker;
 import com.bj4.yhh.utilities.analytics.mixpanel.MixpanelTracker;
 import com.bj4.yhh.utilities.calculator.CalculatorFragment;
+import com.bj4.yhh.utilities.floatingwindow.FloatingWindowOption;
 import com.bj4.yhh.utilities.fragments.BaseFragment;
 import com.bj4.yhh.utilities.listmenu.ListMenu;
 import com.bj4.yhh.utilities.listmenu.ListMenu.OnListMenuSelectedCallback;
@@ -27,6 +28,7 @@ import android.app.FragmentTransaction;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -48,6 +50,8 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
 
     public static final int FRAGMENT_SETTINGS = 3;
 
+    public static final int FRAGMENT_FLOATING_OPTION = 4;
+
     private int mCurrentFragment = -1;
 
     private RelativeLayout mActionBar, mListMenu;
@@ -64,7 +68,8 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
 
     private TextView mActionBarTitle;
 
-    private BaseFragment mCalculatorFragment, mWeatherFragment, mMusicFragment, mSettingsFragment;
+    private BaseFragment mCalculatorFragment, mWeatherFragment, mMusicFragment, mSettingsFragment,
+            mFloatingWindowOptionFragment;
 
     private ImageView mOption;
 
@@ -92,6 +97,13 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
     public void onStop() {
         FlurryTracker.endSession(this);
         super.onStop();
+    }
+
+    private synchronized FloatingWindowOption getFloatingWindowOptionFragmen() {
+        if (mFloatingWindowOptionFragment == null) {
+            mFloatingWindowOptionFragment = new FloatingWindowOption();
+        }
+        return (FloatingWindowOption)mFloatingWindowOptionFragment;
     }
 
     private synchronized SettingsFragment getSettingsFragment() {
@@ -126,7 +138,7 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
         if (mCurrentFragment == targetFragment) {
             return;
         }
-        Fragment fragment = getCalculatorFragment();
+        Fragment fragment = null;
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         HashMap<String, String> flurryTrackMap = new HashMap<String, String>();
         switch (targetFragment) {
@@ -165,9 +177,19 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
                 mOption.setVisibility(View.GONE);
                 MixpanelTracker.getTracker(this).track(Analytics.ViewingFragment.EVENT,
                         Analytics.ViewingFragment.VIEWING_FRAGMENT,
-                        Analytics.ViewingFragment.FRAGMENT_MUSIC);
+                        Analytics.ViewingFragment.FRAGMENT_SETTINGS);
                 flurryTrackMap.put(Analytics.ViewingFragment.VIEWING_FRAGMENT,
-                        Analytics.ViewingFragment.FRAGMENT_MUSIC);
+                        Analytics.ViewingFragment.FRAGMENT_SETTINGS);
+                FlurryTracker.getInstance().track(Analytics.ViewingFragment.EVENT, flurryTrackMap);
+                break;
+            case FRAGMENT_FLOATING_OPTION:
+                fragment = getFloatingWindowOptionFragmen();
+                mOption.setVisibility(View.VISIBLE);
+                MixpanelTracker.getTracker(this).track(Analytics.ViewingFragment.EVENT,
+                        Analytics.ViewingFragment.VIEWING_FRAGMENT,
+                        Analytics.ViewingFragment.FRAGMENT_FLOATING_WINDOW_OPTION);
+                flurryTrackMap.put(Analytics.ViewingFragment.VIEWING_FRAGMENT,
+                        Analytics.ViewingFragment.FRAGMENT_FLOATING_WINDOW_OPTION);
                 FlurryTracker.getInstance().track(Analytics.ViewingFragment.EVENT, flurryTrackMap);
                 break;
             default:

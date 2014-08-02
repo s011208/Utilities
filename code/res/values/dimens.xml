@@ -1,5 +1,9 @@
 <resources>
 
+    <!-- overall -->
+    <dimen name="general_listview_item_type_margin_left">10dp</dimen>
+    <dimen name="general_listview_item_type_textsize">20sp</dimen>
+    <dimen name="general_listview_item_type_margin_v">5dp</dimen>
     <!-- fragment animation -->
     <integer name="fragment_animation_duration">400</integer>
     <!-- action bar -->
@@ -20,9 +24,7 @@
     <dimen name="updating_toast_image_margin_bottom">10dp</dimen>
 
     <!-- music list -->
-    <dimen name="music_item_type_margin_left">10dp</dimen>
-    <dimen name="music_item_type_textsize">20sp</dimen>
-    <dimen name="music_item_type_margin_v">5dp</dimen>
+
 
     <!-- dialog -->
     <dimen name="dialog_content_textsize">20sp</dimen>
@@ -34,4 +36,7 @@
     <dimen name="weather_txt_margin_img_forecast">-5dp</dimen>
     <!-- settings fragment -->
     <dimen name="settings_fragment_item_margin_h">10dp</dimen>
-</resources>
+    <!-- floating fragment -->
+    <dimen name="floating_fragment_margin_h">10dp</dimen>
+
+</resources>

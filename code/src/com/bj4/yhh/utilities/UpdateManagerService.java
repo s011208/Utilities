@@ -23,7 +23,9 @@ public class UpdateManagerService extends Service {
 
     public static final int UPDATE_TYPE_MUSIC = 1;
 
-    private int mUpdateWeatherInterval = 3 * 1000 * 60;
+    private static final int HOUR = 1000 * 60 * 60;
+
+    private int mUpdateWeatherInterval = 3 * HOUR;
 
     private Handler mHandler = new Handler();
 

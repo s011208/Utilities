@@ -15,16 +15,15 @@ public class SettingsFragment extends BaseFragment {
 
     @Override
     public void init() {
-        final Context context = getActivity();
-        LayoutInflater inflater = (LayoutInflater)context
+        LayoutInflater inflater = (LayoutInflater)mContext
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mContentView = inflater.inflate(R.layout.settings_fragment, null);
         CheckBox cb = (CheckBox)mContentView.findViewById(R.id.settings_enable_ga);
-        cb.setChecked(SettingManager.getInstance(context).isEnableGa());
+        cb.setChecked(SettingManager.getInstance(mContext).isEnableGa());
         cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                SettingManager.getInstance(context).setEnableGa(isChecked);
+                SettingManager.getInstance(mContext).setEnableGa(isChecked);
             }
         });
     }
