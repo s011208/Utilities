@@ -31,6 +31,8 @@
         android:label="@string/app_name"
         android:largeHeap="true"
         android:theme="@style/AppTheme" >
+
+        <!-- activities -->
         <activity
             android:name="com.bj4.yhh.utilities.MainActivity"
             android:label="@string/app_name" >
@@ -40,7 +42,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <!-- services -->
         <service
             android:name="com.bj4.yhh.utilities.music.MusicPlayService"
             android:process=":services" />
@@ -56,12 +58,30 @@
         <service
             android:name="com.bj4.yhh.utilities.UpdateManagerService"
             android:process=":services" />
-
+        <!-- Broadcast receiver -->
         <receiver android:name="com.bj4.yhh.utilities.BootCompletedReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+        <!-- widgets -->
+        <receiver android:name="com.bj4.yhh.utilities.weather.WeatherWidget" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/weather_widget_two_four" />
+        </receiver>
+
+        <activity
+            android:name="com.bj4.yhh.utilities.weather.WeatherWidgetConfiguration"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
         <!-- mix panel -->
         <receiver
             android:name="com.mixpanel.android.mpmetrics.InstallReferrerReceiver"
