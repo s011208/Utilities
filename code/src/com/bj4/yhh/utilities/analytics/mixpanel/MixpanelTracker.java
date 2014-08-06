@@ -5,7 +5,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.bj4.yhh.utilities.SettingManager;
 import com.bj4.yhh.utilities.analytics.Analytics;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 
@@ -21,13 +23,18 @@ public class MixpanelTracker {
         return sInstance;
     }
 
-    private boolean mEnableTracker = false && Analytics.ENABLE_TRACKER;
+    private boolean mEnableTracker = Analytics.ENABLE_TRACKER;
 
     // Mixpanel
     private MixpanelAPI mMixpanel;
 
     private MixpanelTracker(Context context) {
+        mEnableTracker = SettingManager.getInstance(context).isEnableGa();
         mMixpanel = MixpanelAPI.getInstance(context.getApplicationContext(), MIXPANEL_TOKEN);
+    }
+
+    public void checkEnableState() {
+        mEnableTracker = Analytics.ENABLE_TRACKER;
     }
 
     public void track(String eventName, String property, String value) {

@@ -5,6 +5,14 @@ public class Analytics {
 
     public static boolean ENABLE_TRACKER = false;
 
+    public static class WidgetSize {
+        public static final String EVENT = "widget size";
+
+        public static final String SIZE_ONE_FOUR = "1 * 4";
+
+        public static final String SIZE_TWO_FOUR = "2 * 4";
+    }
+
     public static class TemptureUnit {
         public static final String EVENT = "tempture unit";
 

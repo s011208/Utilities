@@ -54,7 +54,7 @@ public class SettingManager {
             HashMap<String, String> flurryTrackMap = new HashMap<String, String>();
             flurryTrackMap.put(usingC ? Analytics.TemptureUnit.CELCIUS
                     : Analytics.TemptureUnit.FAHRENHEIT, null);
-            FlurryTracker.getInstance().track(Analytics.TemptureUnit.EVENT, flurryTrackMap);
+            FlurryTracker.getInstance(mContext).track(Analytics.TemptureUnit.EVENT, flurryTrackMap);
         }
     }
 
@@ -65,6 +65,8 @@ public class SettingManager {
     public void setEnableGa(final boolean enableGa) {
         getPref().edit().putBoolean(SETTINGS_ENABLE_GA, enableGa).apply();
         Analytics.ENABLE_TRACKER = enableGa;
+        MixpanelTracker.getTracker(mContext).checkEnableState();
+        FlurryTracker.getInstance(mContext).checkEnableState();
     }
 
     public boolean isWeatherUsingSimpleView() {

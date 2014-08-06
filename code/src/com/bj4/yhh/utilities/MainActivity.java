@@ -150,7 +150,7 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
                         Analytics.ViewingFragment.FRAGMENT_CALCULATOR);
                 flurryTrackMap.put(Analytics.ViewingFragment.VIEWING_FRAGMENT,
                         Analytics.ViewingFragment.FRAGMENT_CALCULATOR);
-                FlurryTracker.getInstance().track(Analytics.ViewingFragment.EVENT, flurryTrackMap);
+                FlurryTracker.getInstance(this).track(Analytics.ViewingFragment.EVENT, flurryTrackMap);
                 break;
             case FRAGMENT_WEATHER:
                 fragment = getWeatherFragment();
@@ -160,7 +160,7 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
                         Analytics.ViewingFragment.FRAGMENT_WEATHER);
                 flurryTrackMap.put(Analytics.ViewingFragment.VIEWING_FRAGMENT,
                         Analytics.ViewingFragment.FRAGMENT_WEATHER);
-                FlurryTracker.getInstance().track(Analytics.ViewingFragment.EVENT, flurryTrackMap);
+                FlurryTracker.getInstance(this).track(Analytics.ViewingFragment.EVENT, flurryTrackMap);
                 break;
             case FRAGMENT_MUSIC:
                 fragment = getMusicFragment();
@@ -170,7 +170,7 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
                         Analytics.ViewingFragment.FRAGMENT_MUSIC);
                 flurryTrackMap.put(Analytics.ViewingFragment.VIEWING_FRAGMENT,
                         Analytics.ViewingFragment.FRAGMENT_MUSIC);
-                FlurryTracker.getInstance().track(Analytics.ViewingFragment.EVENT, flurryTrackMap);
+                FlurryTracker.getInstance(this).track(Analytics.ViewingFragment.EVENT, flurryTrackMap);
                 break;
             case FRAGMENT_SETTINGS:
                 fragment = getSettingsFragment();
@@ -180,7 +180,7 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
                         Analytics.ViewingFragment.FRAGMENT_SETTINGS);
                 flurryTrackMap.put(Analytics.ViewingFragment.VIEWING_FRAGMENT,
                         Analytics.ViewingFragment.FRAGMENT_SETTINGS);
-                FlurryTracker.getInstance().track(Analytics.ViewingFragment.EVENT, flurryTrackMap);
+                FlurryTracker.getInstance(this).track(Analytics.ViewingFragment.EVENT, flurryTrackMap);
                 break;
             case FRAGMENT_FLOATING_OPTION:
                 fragment = getFloatingWindowOptionFragmen();
@@ -190,7 +190,7 @@ public class MainActivity extends Activity implements OnListMenuSelectedCallback
                         Analytics.ViewingFragment.FRAGMENT_FLOATING_WINDOW_OPTION);
                 flurryTrackMap.put(Analytics.ViewingFragment.VIEWING_FRAGMENT,
                         Analytics.ViewingFragment.FRAGMENT_FLOATING_WINDOW_OPTION);
-                FlurryTracker.getInstance().track(Analytics.ViewingFragment.EVENT, flurryTrackMap);
+                FlurryTracker.getInstance(this).track(Analytics.ViewingFragment.EVENT, flurryTrackMap);
                 break;
             default:
                 return;

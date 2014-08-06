@@ -12,21 +12,31 @@
         android:layout_weight="1" >
 
         <TextView
+            android:id="@+id/weather_data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:gravity="center"
+            android:textColor="#fff"
+            android:textStyle="bold" />
+
+        <TextView
             android:id="@+id/weather_widget_currenttmp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:gravity="center"
-            android:textColor="#fff" />
+            android:textColor="#fff"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <ImageView
             android:id="@+id/weather_widget_current_img"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@+id/weather_widget_currenttmp"
-            android:layout_alignParentTop="true"
-            android:layout_centerInParent="true"
-            android:layout_margin="3dp"
+            android:layout_width="@dimen/weather_widget_one_four_img_size"
+            android:layout_height="@dimen/weather_widget_one_four_img_size"
+            android:layout_below="@+id/weather_data"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="1dp"
             android:scaleType="centerInside" />
     </RelativeLayout>
 
@@ -35,18 +45,10 @@
         android:layout_height="wrap_content"
         android:layout_weight="2" >
 
-        <TextView
-            android:id="@+id/weather_data"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="#fff" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentBottom="true"
-            android:layout_below="@+id/weather_data"
             android:orientation="horizontal" >
 
             <RelativeLayout

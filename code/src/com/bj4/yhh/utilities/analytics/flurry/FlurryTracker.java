@@ -3,6 +3,7 @@ package com.bj4.yhh.utilities.analytics.flurry;
 
 import java.util.HashMap;
 
+import com.bj4.yhh.utilities.SettingManager;
 import com.bj4.yhh.utilities.analytics.Analytics;
 import com.flurry.android.FlurryAgent;
 
@@ -14,17 +15,22 @@ public class FlurryTracker {
 
     private static FlurryTracker sInstance;
 
-    public synchronized static FlurryTracker getInstance() {
+    public synchronized static FlurryTracker getInstance(Context context) {
         if (sInstance == null) {
-            sInstance = new FlurryTracker();
+            sInstance = new FlurryTracker(context);
         }
         return sInstance;
     }
 
-    private boolean mEnableTracker = true && Analytics.ENABLE_TRACKER;
+    private boolean mEnableTracker = Analytics.ENABLE_TRACKER;
 
-    private FlurryTracker() {
+    private FlurryTracker(Context context) {
+        mEnableTracker = SettingManager.getInstance(context).isEnableGa();
         FlurryAgent.setLogLevel(Log.VERBOSE);
+    }
+
+    public void checkEnableState() {
+        mEnableTracker = Analytics.ENABLE_TRACKER;
     }
 
     public void track(String eventName) {
