@@ -15,6 +15,7 @@ import android.view.View.OnClickListener;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 public class WeatherOptionDialog extends DialogFragment {
@@ -52,6 +53,22 @@ public class WeatherOptionDialog extends DialogFragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 SettingManager.getInstance(context).setWeatherUsingSimpleView(isChecked);
+            }
+        });
+        RadioGroup rg = (RadioGroup)mContentView.findViewById(R.id.weather_option_rgroup);
+        rg.check(SettingManager.getInstance(context).isUsingC() ? R.id.weather_c : R.id.weather_f);
+        rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case R.id.weather_f:
+                        SettingManager.getInstance(context).setUsingC(false);
+                        break;
+                    case R.id.weather_c:
+                        SettingManager.getInstance(context).setUsingC(true);
+                        break;
+                }
             }
         });
     }

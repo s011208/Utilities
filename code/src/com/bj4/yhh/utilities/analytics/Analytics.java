@@ -5,6 +5,14 @@ public class Analytics {
 
     public static boolean ENABLE_TRACKER = false;
 
+    public static class TemptureUnit {
+        public static final String EVENT = "tempture unit";
+
+        public static final String FAHRENHEIT = "Fahrenheit";
+
+        public static final String CELCIUS = "Celcius";
+    }
+
     public static class ViewingFragment {
         public static final String EVENT = "change fragment";
 

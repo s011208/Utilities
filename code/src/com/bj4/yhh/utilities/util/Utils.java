@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URL;
+import java.util.ArrayList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,10 +23,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.bj4.yhh.utilities.DatabaseHelper;
 import com.bj4.yhh.utilities.R;
+import com.bj4.yhh.utilities.SettingManager;
 import com.bj4.yhh.utilities.UtilitiesApplication;
+import com.bj4.yhh.utilities.weather.Weather;
 import com.bj4.yhh.utilities.weather.WeatherData;
 import com.bj4.yhh.utilities.weather.WeatherService;
+import com.bj4.yhh.utilities.weather.WeatherWoeId;
 
 public class Utils {
     @SuppressWarnings("deprecation")
@@ -92,6 +97,7 @@ public class Utils {
         String city = null, country = null, sWind = null, humidity = null, visibility = null, rise = null, set = null, currentTemp = null, currentText = null;
         WeatherData.WeatherForecast f0 = null, f1 = null, f2 = null, f3 = null, f4 = null;
         int currentCode;
+        final boolean usingC = SettingManager.getInstance(context).isUsingC();
         File file = new File(context.getFilesDir().getAbsolutePath() + File.separator
                 + WeatherService.FOLDER_NAME + File.separator + woeid);
         if (file.exists()) {
@@ -111,27 +117,32 @@ public class Utils {
                 rise = astronomy.getString("sunrise");
                 set = astronomy.getString("sunset");
                 JSONObject condition = channel.getJSONObject("item").getJSONObject("condition");
-                currentTemp = condition.getString("temp");
+                currentTemp = getCorrectTemp(usingC, condition.getString("temp"));
                 currentText = condition.getString("text");
                 currentCode = condition.getInt("code");
                 JSONArray forecast = channel.getJSONObject("item").getJSONArray("forecast");
                 for (int i = 0; i < forecast.length(); i++) {
                     JSONObject f = forecast.getJSONObject(i);
                     if (i == 0) {
-                        f0 = new WeatherData.WeatherForecast(f.getString("day"),
-                                f.getString("high"), f.getString("low"), f.getInt("code"));
+                        f0 = new WeatherData.WeatherForecast(f.getString("day"), getCorrectTemp(
+                                usingC, f.getString("high")), getCorrectTemp(usingC,
+                                f.getString("low")), f.getInt("code"));
                     } else if (i == 1) {
-                        f1 = new WeatherData.WeatherForecast(f.getString("day"),
-                                f.getString("high"), f.getString("low"), f.getInt("code"));
+                        f1 = new WeatherData.WeatherForecast(f.getString("day"), getCorrectTemp(
+                                usingC, f.getString("high")), getCorrectTemp(usingC,
+                                f.getString("low")), f.getInt("code"));
                     } else if (i == 2) {
-                        f2 = new WeatherData.WeatherForecast(f.getString("day"),
-                                f.getString("high"), f.getString("low"), f.getInt("code"));
+                        f2 = new WeatherData.WeatherForecast(f.getString("day"), getCorrectTemp(
+                                usingC, f.getString("high")), getCorrectTemp(usingC,
+                                f.getString("low")), f.getInt("code"));
                     } else if (i == 3) {
-                        f3 = new WeatherData.WeatherForecast(f.getString("day"),
-                                f.getString("high"), f.getString("low"), f.getInt("code"));
+                        f3 = new WeatherData.WeatherForecast(f.getString("day"), getCorrectTemp(
+                                usingC, f.getString("high")), getCorrectTemp(usingC,
+                                f.getString("low")), f.getInt("code"));
                     } else if (i == 4) {
-                        f4 = new WeatherData.WeatherForecast(f.getString("day"),
-                                f.getString("high"), f.getString("low"), f.getInt("code"));
+                        f4 = new WeatherData.WeatherForecast(f.getString("day"), getCorrectTemp(
+                                usingC, f.getString("high")), getCorrectTemp(usingC,
+                                f.getString("low")), f.getInt("code"));
                     }
                 }
                 rtn = new WeatherData(city, country, sWind, humidity, visibility, rise, set,
@@ -146,6 +157,34 @@ public class Utils {
             context.startService(parse);
         }
         return rtn;
+    }
+
+    public static void forcedReloadWeatherDataCache(final Context context) {
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                synchronized (UtilitiesApplication.sWeatherDataCache) {
+                    UtilitiesApplication.sWeatherDataCache.evictAll();
+                    ArrayList<WeatherWoeId> woeids = DatabaseHelper.getInstance(context)
+                            .getWeatherWoeid();
+                    for (WeatherWoeId woeid : woeids) {
+                        parseWeatherData(context, woeid.mWoeid);
+                    }
+                }
+                context.sendBroadcast(new Intent(Weather.INTENT_ON_DATA_UPDATE));
+            }
+        }).start();
+    }
+
+    private static String getCorrectTemp(boolean usingC, String temp) {
+        if (usingC) {
+            float tempF = Float.valueOf(temp);
+            int tempC = (int)Math.round((tempF - 32) * (5 / 9f));
+            return String.valueOf(tempC);
+        } else {
+            return temp;
+        }
     }
 
     public static int getWeatherIcon(int weatherCode) {

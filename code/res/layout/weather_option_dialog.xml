@@ -41,6 +41,39 @@
             android:text="@string/using_simple_weather_view"
             android:textColor="#000"
             android:textSize="@dimen/dialog_content_textsize" />
+
+        <RadioGroup
+            android:id="@+id/weather_option_rgroup"
+            android:layout_width="match_parent"
+            android:layout_height="0dip"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="@drawable/simple_txt_bg"
+            android:gravity="center"
+            android:orientation="horizontal" >
+
+            <RadioButton
+                android:id="@+id/weather_f"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/simple_txt_bg"
+                android:gravity="center"
+                android:text="˚F"
+                android:textColor="#000"
+                android:textSize="@dimen/dialog_content_textsize" />
+
+            <RadioButton
+                android:id="@+id/weather_c"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/simple_txt_bg"
+                android:gravity="center"
+                android:text="˚C"
+                android:textColor="#000"
+                android:textSize="@dimen/dialog_content_textsize" />
+        </RadioGroup>
     </LinearLayout>
 
 </ScrollView>

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.bj4.yhh.utilities.UpdateManagerService;
 import com.bj4.yhh.utilities.fragments.BaseFragment;
