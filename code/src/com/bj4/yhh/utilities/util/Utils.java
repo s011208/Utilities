@@ -30,6 +30,7 @@ import com.bj4.yhh.utilities.UtilitiesApplication;
 import com.bj4.yhh.utilities.weather.Weather;
 import com.bj4.yhh.utilities.weather.WeatherData;
 import com.bj4.yhh.utilities.weather.WeatherService;
+import com.bj4.yhh.utilities.weather.WeatherWidgetUpdateService;
 import com.bj4.yhh.utilities.weather.WeatherWoeId;
 
 public class Utils {
@@ -171,8 +172,9 @@ public class Utils {
                     for (WeatherWoeId woeid : woeids) {
                         parseWeatherData(context, woeid.mWoeid);
                     }
+                    context.sendBroadcast(new Intent(Weather.INTENT_ON_DATA_UPDATE));
+                    context.startService(new Intent(context, WeatherWidgetUpdateService.class));
                 }
-                context.sendBroadcast(new Intent(Weather.INTENT_ON_DATA_UPDATE));
             }
         }).start();
     }

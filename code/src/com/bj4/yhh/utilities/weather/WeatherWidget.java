@@ -82,7 +82,7 @@ public class WeatherWidget extends AppWidgetProvider {
         }
     }
 
-    public static void updateOneFourWidgetView(Context context, AppWidgetManager appWidgetManager,
+    private static void updateOneFourWidgetView(Context context, AppWidgetManager appWidgetManager,
             final int appWidgetId, final long woeid) {
         WeatherData wData = UtilitiesApplication.sWeatherDataCache.get(woeid);
         if (wData == null) {
@@ -128,7 +128,7 @@ public class WeatherWidget extends AppWidgetProvider {
         FlurryTracker.getInstance(context).track(Analytics.WidgetSize.EVENT, flurryTrackMap);
     }
 
-    public static void updateTwoFourWidgetView(Context context, AppWidgetManager appWidgetManager,
+    private static void updateTwoFourWidgetView(Context context, AppWidgetManager appWidgetManager,
             final int appWidgetId, final long woeid) {
         WeatherData wData = UtilitiesApplication.sWeatherDataCache.get(woeid);
         if (wData == null) {

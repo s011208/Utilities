@@ -93,6 +93,8 @@
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
+        <service
+            android:name="com.bj4.yhh.utilities.weather.WeatherWidgetUpdateService" />
         <!-- mix panel -->
         <receiver
             android:name="com.mixpanel.android.mpmetrics.InstallReferrerReceiver"
