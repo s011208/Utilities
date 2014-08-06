@@ -3,6 +3,7 @@
     android:initialLayout="@layout/weather_widget_one_four"
     android:minHeight="64dp"
     android:minWidth="288dp"
+    android:previewImage="@drawable/weather_widget_one_four_preview"
     android:updatePeriodMillis="1800000"
     android:widgetCategory="keyguard|home_screen" >
 

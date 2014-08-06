@@ -36,6 +36,7 @@
     <dimen name="weather_txt_margin_img_forecast">-5dp</dimen>
     <dimen name="weather_widget_two_four_forecast_temp_txtsize">12sp</dimen>
     <dimen name="weather_widget_one_four_img_size">40dp</dimen>
+    <dimen name="weather_widget_two_four_img_size">70dp</dimen>
     <!-- settings fragment -->
     <dimen name="settings_fragment_item_margin_h">10dp</dimen>
     <!-- floating fragment -->

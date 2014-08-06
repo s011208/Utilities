@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/weather_widget_background"
     android:orientation="horizontal"
-    android:padding="5dp" >
+    android:padding="1dp" >
 
     <RelativeLayout
         android:layout_width="0dp"
@@ -20,6 +20,15 @@
             android:textColor="#fff"
             android:textStyle="bold" />
 
+        <ImageView
+            android:id="@+id/weather_widget_current_img"
+            android:layout_width="@dimen/weather_widget_one_four_img_size"
+            android:layout_height="@dimen/weather_widget_one_four_img_size"
+            android:layout_below="@+id/weather_data"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="1dp"
+            android:scaleType="centerInside" />
+
         <TextView
             android:id="@+id/weather_widget_currenttmp"
             android:layout_width="match_parent"
@@ -29,15 +38,6 @@
             android:textColor="#fff"
             android:textSize="18sp"
             android:textStyle="bold" />
-
-        <ImageView
-            android:id="@+id/weather_widget_current_img"
-            android:layout_width="@dimen/weather_widget_one_four_img_size"
-            android:layout_height="@dimen/weather_widget_one_four_img_size"
-            android:layout_below="@+id/weather_data"
-            android:layout_centerHorizontal="true"
-            android:layout_margin="1dp"
-            android:scaleType="centerInside" />
     </RelativeLayout>
 
     <RelativeLayout

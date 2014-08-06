@@ -4,17 +4,25 @@ package com.bj4.yhh.utilities.weather;
 import java.util.HashMap;
 
 import com.bj4.yhh.utilities.R;
+import com.bj4.yhh.utilities.SettingManager;
 import com.bj4.yhh.utilities.UtilitiesApplication;
 import com.bj4.yhh.utilities.analytics.Analytics;
 import com.bj4.yhh.utilities.analytics.flurry.FlurryTracker;
 import com.bj4.yhh.utilities.analytics.mixpanel.MixpanelTracker;
 import com.bj4.yhh.utilities.util.Utils;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.appwidget.AppWidgetProviderInfo;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.SystemClock;
+import android.text.format.Time;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -46,11 +54,35 @@ public class WeatherWidget extends AppWidgetProvider {
         }
     }
 
+    private void setUpdateAlarm(Context context) {
+        final Intent intent = new Intent(context, WeatherWidgetUpdateService.class);
+        final PendingIntent pending = PendingIntent.getService(context, 0, intent, 0);
+        final AlarmManager alarm = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        alarm.cancel(pending);
+        long interval = 1000 * 60;
+        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), interval,
+                pending);
+    }
+
+    private BroadcastReceiver mTimeTickReceiver;
+
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
         for (int widgetId : appWidgetIds) {
             updateWidgets(context, appWidgetManager, widgetId);
+        }
+        if (mTimeTickReceiver == null) {
+            mTimeTickReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    setUpdateAlarm(context.getApplicationContext());
+                    context.getApplicationContext().unregisterReceiver(this);
+                }
+            };
+            IntentFilter filter = new IntentFilter(Intent.ACTION_TIME_TICK);
+            context.getApplicationContext().registerReceiver(mTimeTickReceiver, filter);
+            setUpdateAlarm(context.getApplicationContext());
         }
     }
 
@@ -122,9 +154,9 @@ public class WeatherWidget extends AppWidgetProvider {
         updateViews.setTextViewText(R.id.weather_f4_temp, f4.mLow + "/" + f4.mHigh);
         appWidgetManager.updateAppWidget(appWidgetId, updateViews);
         MixpanelTracker.getTracker(context).track(Analytics.WidgetSize.EVENT,
-                Analytics.WidgetSize.SIZE_ONE_FOUR, null);
+                Analytics.WidgetSize.SIZE_ONE_FOUR, Analytics.WidgetSize.SIZE_ONE_FOUR);
         HashMap<String, String> flurryTrackMap = new HashMap<String, String>();
-        flurryTrackMap.put(Analytics.WidgetSize.SIZE_ONE_FOUR, null);
+        flurryTrackMap.put(Analytics.WidgetSize.SIZE_ONE_FOUR, Analytics.WidgetSize.SIZE_ONE_FOUR);
         FlurryTracker.getInstance(context).track(Analytics.WidgetSize.EVENT, flurryTrackMap);
     }
 
@@ -142,8 +174,9 @@ public class WeatherWidget extends AppWidgetProvider {
         // current
         updateViews.setImageViewResource(R.id.weather_widget_current_img,
                 Utils.getWeatherIcon(wData.mCurrentCode));
-        updateViews.setTextViewText(R.id.weather_widget_currenttmp, wData.mCurrentTemp + "\n"
-                + wData.mCurrentCondi);
+        String tempUnit = SettingManager.getInstance(context).isUsingC() ? "˚C" : "˚F";
+        updateViews.setTextViewText(R.id.current_temp, wData.mCurrentTemp + " " + tempUnit);
+        updateViews.setTextViewText(R.id.current_condition, wData.mCurrentCondi);
         // city
         updateViews.setTextViewText(R.id.weather_data, wData.mCity);
         // forecast
@@ -167,11 +200,118 @@ public class WeatherWidget extends AppWidgetProvider {
         updateViews.setImageViewResource(R.id.weather_f4_img, Utils.getWeatherIcon(f4.mCode));
         updateViews.setTextViewText(R.id.weather_f4_date, f4.mDay);
         updateViews.setTextViewText(R.id.weather_f4_temp, f4.mLow + "/" + f4.mHigh);
+        // time
+        updateViews.setTextViewText(R.id.current_date, getFullDateString());
+        updateViews.setTextViewText(R.id.current_time, getFullTimeString());
+        // sunrise/set
+        String sunrise = wData.mSunrise.replaceAll("pm|am", "");
+        String sunset = wData.mSunset.replaceAll("pm|am", "");
+        updateViews.setTextViewText(R.id.sun_time, "sunrise: " + sunrise + "  sunset: " + sunset);
         appWidgetManager.updateAppWidget(appWidgetId, updateViews);
         MixpanelTracker.getTracker(context).track(Analytics.WidgetSize.EVENT,
-                Analytics.WidgetSize.SIZE_TWO_FOUR, null);
+                Analytics.WidgetSize.SIZE_TWO_FOUR, Analytics.WidgetSize.SIZE_TWO_FOUR);
         HashMap<String, String> flurryTrackMap = new HashMap<String, String>();
-        flurryTrackMap.put(Analytics.WidgetSize.SIZE_TWO_FOUR, null);
+        flurryTrackMap.put(Analytics.WidgetSize.SIZE_TWO_FOUR, Analytics.WidgetSize.SIZE_TWO_FOUR);
         FlurryTracker.getInstance(context).track(Analytics.WidgetSize.EVENT, flurryTrackMap);
+    }
+
+    private static String getFullTimeString() {
+        Time now = new Time();
+        now.setToNow();
+        int h = now.hour;
+        int m = now.minute;
+        String hour = String.valueOf(h);
+        if (hour.length() < 2)
+            hour = "0" + hour;
+        String minute = String.valueOf(m);
+        if (minute.length() < 2) {
+            minute = "0" + minute;
+        }
+        return hour + " : " + minute;
+    }
+
+    private static String getYear(Time now) {
+        return String.valueOf(now.year);
+    }
+
+    private static String getMonth(Time now) {
+        String m = null;
+        switch (now.month) {
+            case 0:
+                m = "Jan";
+                break;
+            case 1:
+                m = "Feb";
+                break;
+            case 2:
+                m = "Mar";
+                break;
+            case 3:
+                m = "Apr";
+                break;
+            case 4:
+                m = "May";
+                break;
+            case 5:
+                m = "Jun";
+                break;
+            case 6:
+                m = "Jul";
+                break;
+            case 7:
+                m = "Aug";
+                break;
+            case 8:
+                m = "Sep";
+                break;
+            case 9:
+                m = "Oct";
+                break;
+            case 10:
+                m = "Nov";
+                break;
+            case 11:
+                m = "Dec";
+                break;
+        }
+        return m;
+    }
+
+    private static String getDay(Time now) {
+        return String.valueOf(now.monthDay);
+    }
+
+    private static String getWeekDay(Time now) {
+        String w = null;
+        switch (now.weekDay) {
+            case 0:
+                w = "Sun";
+                break;
+            case 1:
+                w = "Mon";
+                break;
+            case 2:
+                w = "Tue";
+                break;
+            case 3:
+                w = "Wed";
+                break;
+            case 4:
+                w = "Thu";
+                break;
+            case 5:
+                w = "Fri";
+                break;
+            case 6:
+                w = "Sat";
+                break;
+        }
+        return w;
+    }
+
+    private static String getFullDateString() {
+        Time now = new Time();
+        now.setToNow();
+        return getMonth(now) + " " + getDay(now) + ", " + getYear(now) + " - " + getWeekDay(now);
     }
 }

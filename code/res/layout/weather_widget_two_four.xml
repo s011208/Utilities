@@ -1,52 +1,72 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/weather_widget_background"
-    android:orientation="horizontal"
     android:padding="5dp" >
 
     <RelativeLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1" >
+        android:id="@+id/top_region"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true" >
 
         <TextView
-            android:id="@+id/weather_widget_currenttmp"
-            android:layout_width="match_parent"
+            android:id="@+id/current_temp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:gravity="center"
             android:textColor="#fff" />
-
-        <ImageView
-            android:id="@+id/weather_widget_current_img"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@+id/weather_widget_currenttmp"
-            android:layout_alignParentTop="true"
-            android:layout_centerInParent="true"
-            android:layout_margin="3dp"
-            android:scaleType="centerInside" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="2" >
 
         <TextView
             android:id="@+id/weather_data"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="#fff" />
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/current_temp"
+            android:textColor="#fff"
+            android:textSize="18sp" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/middle_region"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/top_region"
+        android:orientation="horizontal" >
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" >
+
+            <ImageView
+                android:id="@+id/weather_widget_current_img"
+                android:layout_width="@dimen/weather_widget_two_four_img_size"
+                android:layout_height="@dimen/weather_widget_two_four_img_size"
+                android:layout_alignParentTop="true"
+                android:scaleType="centerInside" />
+
+            <TextView
+                android:id="@+id/current_condition"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-10dp"
+                android:layout_below="@+id/weather_widget_current_img"
+                android:gravity="center"
+                android:textColor="#fff" />
+        </RelativeLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_alignParentBottom="true"
-            android:layout_below="@+id/weather_data"
+            android:layout_weight="3"
+            android:gravity="center"
             android:orientation="horizontal" >
 
             <RelativeLayout
@@ -204,6 +224,48 @@
                     android:textSize="@dimen/weather_widget_two_four_forecast_temp_txtsize" />
             </RelativeLayout>
         </LinearLayout>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/bottom_region"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/middle_region" >
+
+        <TextView
+            android:id="@+id/current_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:gravity="center"
+            android:textColor="#fff"
+            android:textSize="28sp" />
+
+        <TextView
+            android:id="@+id/sun_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/current_time"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_toRightOf="@+id/current_time"
+            android:gravity="center"
+            android:textColor="#fff" />
+
+        <TextView
+            android:id="@+id/current_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/current_time"
+            android:layout_below="@+id/sun_time"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_toRightOf="@+id/current_time"
+            android:gravity="center"
+            android:textColor="#fff" />
     </RelativeLayout>
 
-</LinearLayout>
+</RelativeLayout>

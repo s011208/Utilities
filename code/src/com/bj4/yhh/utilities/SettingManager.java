@@ -50,10 +50,11 @@ public class SettingManager {
             Utils.forcedReloadWeatherDataCache(mContext);
             MixpanelTracker.getTracker(mContext).track(Analytics.TemptureUnit.EVENT,
                     usingC ? Analytics.TemptureUnit.CELCIUS : Analytics.TemptureUnit.FAHRENHEIT,
-                    null);
+                    usingC ? Analytics.TemptureUnit.CELCIUS : Analytics.TemptureUnit.FAHRENHEIT);
             HashMap<String, String> flurryTrackMap = new HashMap<String, String>();
             flurryTrackMap.put(usingC ? Analytics.TemptureUnit.CELCIUS
-                    : Analytics.TemptureUnit.FAHRENHEIT, null);
+                    : Analytics.TemptureUnit.FAHRENHEIT, usingC ? Analytics.TemptureUnit.CELCIUS
+                    : Analytics.TemptureUnit.FAHRENHEIT);
             FlurryTracker.getInstance(mContext).track(Analytics.TemptureUnit.EVENT, flurryTrackMap);
         }
     }
