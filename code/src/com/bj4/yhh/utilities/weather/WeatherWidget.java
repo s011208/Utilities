@@ -8,6 +8,7 @@ import com.bj4.yhh.utilities.SettingManager;
 import com.bj4.yhh.utilities.UtilitiesApplication;
 import com.bj4.yhh.utilities.analytics.Analytics;
 import com.bj4.yhh.utilities.analytics.flurry.FlurryTracker;
+import com.bj4.yhh.utilities.analytics.googleanalytics.GoogleAnalyticsTracker;
 import com.bj4.yhh.utilities.analytics.mixpanel.MixpanelTracker;
 import com.bj4.yhh.utilities.util.Utils;
 
@@ -158,6 +159,8 @@ public class WeatherWidget extends AppWidgetProvider {
         HashMap<String, String> flurryTrackMap = new HashMap<String, String>();
         flurryTrackMap.put(Analytics.WidgetSize.SIZE_ONE_FOUR, Analytics.WidgetSize.SIZE_ONE_FOUR);
         FlurryTracker.getInstance(context).track(Analytics.WidgetSize.EVENT, flurryTrackMap);
+        GoogleAnalyticsTracker.getInstance(context).sendEvents(context, Analytics.WidgetSize.EVENT,
+                Analytics.WidgetSize.SIZE_ONE_FOUR, null, null);
     }
 
     private static void updateTwoFourWidgetView(Context context, AppWidgetManager appWidgetManager,
@@ -213,6 +216,8 @@ public class WeatherWidget extends AppWidgetProvider {
         HashMap<String, String> flurryTrackMap = new HashMap<String, String>();
         flurryTrackMap.put(Analytics.WidgetSize.SIZE_TWO_FOUR, Analytics.WidgetSize.SIZE_TWO_FOUR);
         FlurryTracker.getInstance(context).track(Analytics.WidgetSize.EVENT, flurryTrackMap);
+        GoogleAnalyticsTracker.getInstance(context).sendEvents(context, Analytics.WidgetSize.EVENT,
+                Analytics.WidgetSize.SIZE_TWO_FOUR, null, null);
     }
 
     private static String getFullTimeString() {

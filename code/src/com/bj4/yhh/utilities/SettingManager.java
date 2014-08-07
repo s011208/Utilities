@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import com.bj4.yhh.utilities.analytics.Analytics;
 import com.bj4.yhh.utilities.analytics.flurry.FlurryTracker;
+import com.bj4.yhh.utilities.analytics.googleanalytics.GoogleAnalyticsTracker;
 import com.bj4.yhh.utilities.analytics.mixpanel.MixpanelTracker;
 import com.bj4.yhh.utilities.util.Utils;
 import com.bj4.yhh.utilities.weather.Weather;
@@ -56,6 +57,10 @@ public class SettingManager {
                     : Analytics.TemptureUnit.FAHRENHEIT, usingC ? Analytics.TemptureUnit.CELCIUS
                     : Analytics.TemptureUnit.FAHRENHEIT);
             FlurryTracker.getInstance(mContext).track(Analytics.TemptureUnit.EVENT, flurryTrackMap);
+            GoogleAnalyticsTracker.getInstance(mContext).sendEvents(mContext,
+                    Analytics.TemptureUnit.EVENT,
+                    usingC ? Analytics.TemptureUnit.CELCIUS : Analytics.TemptureUnit.FAHRENHEIT,
+                    null, null);
         }
     }
 
@@ -68,6 +73,7 @@ public class SettingManager {
         Analytics.ENABLE_TRACKER = enableGa;
         MixpanelTracker.getTracker(mContext).checkEnableState();
         FlurryTracker.getInstance(mContext).checkEnableState();
+        GoogleAnalyticsTracker.getInstance(mContext).checkEnableState();
     }
 
     public boolean isWeatherUsingSimpleView() {
