@@ -3,6 +3,7 @@ package com.bj4.yhh.utilities.analytics.googleanalytics;
 
 import java.util.HashMap;
 
+import com.bj4.yhh.utilities.SettingManager;
 import com.bj4.yhh.utilities.analytics.Analytics;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.Fields;
@@ -12,9 +13,26 @@ import com.google.android.gms.analytics.Tracker;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 
 public class GoogleAnalyticsTracker {
     private static final String GA_TOKEN = "UA-53591758-1";
+
+    public static class DefaultDimension {
+        public static final int BUILD_MODEL = 1;
+
+        public static final int BUILD_FINGERPRINT = 2;
+
+        public static final int BUILD_TYPE = 3;
+
+        public static final int BUILD_DEVICE = 4;
+
+        public static final int PRODUCT_NAME = 5;
+    }
+
+    public static class ActivityDimension extends DefaultDimension {
+        public static final int BUILD_NUMBER = 6;
+    }
 
     private static GoogleAnalyticsTracker sInstance;
 
@@ -37,11 +55,20 @@ public class GoogleAnalyticsTracker {
         if (sTracker == null) {
             sTracker = GoogleAnalytics.getInstance(context.getApplicationContext()).newTracker(
                     GA_TOKEN);
+            sTracker.set(Fields.customDimension(DefaultDimension.BUILD_MODEL), Build.MODEL);
+            sTracker.set(Fields.customDimension(DefaultDimension.BUILD_FINGERPRINT),
+                    Build.FINGERPRINT);
+            sTracker.set(Fields.customDimension(DefaultDimension.BUILD_TYPE), Build.TYPE);
+            sTracker.set(Fields.customDimension(DefaultDimension.BUILD_DEVICE), Build.DEVICE);
+            sTracker.set(Fields.customDimension(DefaultDimension.PRODUCT_NAME), Build.PRODUCT);
+            sTracker.set(Fields.customDimension(ActivityDimension.BUILD_NUMBER),
+                    sTracker.get(Fields.CLIENT_ID));
         }
         return sTracker;
     }
 
     private GoogleAnalyticsTracker(Context context) {
+        mEnableTracker = SettingManager.getInstance(context).isEnableGa();
     }
 
     public void sendException(Context context, String exceptionDescription, boolean fatal,
