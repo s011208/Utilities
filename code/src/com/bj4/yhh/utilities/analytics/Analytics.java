@@ -11,6 +11,8 @@ public class Analytics {
         public static final String SIZE_ONE_FOUR = "1 * 4";
 
         public static final String SIZE_TWO_FOUR = "2 * 4";
+        
+        public static final String FAILED_TO_GET_DATA = "failed to get data";
     }
 
     public static class TemptureUnit {

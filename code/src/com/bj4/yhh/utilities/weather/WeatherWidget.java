@@ -90,11 +90,12 @@ public class WeatherWidget extends AppWidgetProvider {
     public static void updateWidgets(Context context, AppWidgetManager appWidgetManager,
             int appWidgetId) {
         long woeid = getPref(context).getLong(String.valueOf(appWidgetId), -1);
-        if (woeid == -1) {
-            return;
-        } else if (woeid == WeatherWidgetConfiguration.CURRENT_LOCATION){
+        if (woeid == WeatherWidgetConfiguration.CURRENT_LOCATION) {
             woeid = SettingManager.getInstance(context).getCurrentLocationWoeid();
-            Log.e("QQQQ", "woeid == -200 & new woeid: " + woeid);
+        }
+        if (woeid == -1) {
+            updateFailedToGetWeatherData(context, appWidgetManager, appWidgetId);
+            return;
         }
         AppWidgetProviderInfo info = appWidgetManager.getAppWidgetInfo(appWidgetId);
         if (info == null) {
@@ -115,6 +116,21 @@ public class WeatherWidget extends AppWidgetProvider {
                 updateTwoFourWidgetView(context, appWidgetManager, appWidgetId, woeid);
             }
         }
+    }
+
+    private static void updateFailedToGetWeatherData(Context context,
+            AppWidgetManager appWidgetManager, final int appWidgetId) {
+        RemoteViews updateViews = new RemoteViews(context.getPackageName(),
+                R.layout.weather_widget_fail_to_get_data);
+        appWidgetManager.updateAppWidget(appWidgetId, updateViews);
+        MixpanelTracker.getTracker(context).track(Analytics.WidgetSize.EVENT,
+                Analytics.WidgetSize.FAILED_TO_GET_DATA, Analytics.WidgetSize.FAILED_TO_GET_DATA);
+        HashMap<String, String> flurryTrackMap = new HashMap<String, String>();
+        flurryTrackMap.put(Analytics.WidgetSize.FAILED_TO_GET_DATA,
+                Analytics.WidgetSize.FAILED_TO_GET_DATA);
+        FlurryTracker.getInstance(context).track(Analytics.WidgetSize.EVENT, flurryTrackMap);
+        GoogleAnalyticsTracker.getInstance(context).sendEvents(context, Analytics.WidgetSize.EVENT,
+                Analytics.WidgetSize.FAILED_TO_GET_DATA, null, null);
     }
 
     private static void updateOneFourWidgetView(Context context, AppWidgetManager appWidgetManager,
