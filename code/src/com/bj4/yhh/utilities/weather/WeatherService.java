@@ -104,7 +104,9 @@ public class WeatherService extends Service {
                     if (wData != null) {
                         UtilitiesApplication.sWeatherDataCache.put(woeid, wData);
                     }
-                    WeatherService.this.sendBroadcast(new Intent(Weather.INTENT_ON_DATA_UPDATE));
+                    if (mParsingWoeid.isEmpty()) {
+                        Utils.forcedReloadWeatherDataCache(getApplicationContext());
+                    }
                 }
             }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
@@ -211,6 +213,7 @@ public class WeatherService extends Service {
                     file.createNewFile();
                     Utils.writeToFile(file.getAbsolutePath(), data);
                 } catch (IOException e) {
+                    Log.w(TAG, "failed to parse", e);
                 }
                 if (DEBUG)
                     Log.d(TAG, data);
