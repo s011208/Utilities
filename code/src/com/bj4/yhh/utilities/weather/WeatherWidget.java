@@ -92,6 +92,9 @@ public class WeatherWidget extends AppWidgetProvider {
         long woeid = getPref(context).getLong(String.valueOf(appWidgetId), -1);
         if (woeid == -1) {
             return;
+        } else if (woeid == WeatherWidgetConfiguration.CURRENT_LOCATION){
+            woeid = SettingManager.getInstance(context).getCurrentLocationWoeid();
+            Log.e("QQQQ", "woeid == -200 & new woeid: " + woeid);
         }
         AppWidgetProviderInfo info = appWidgetManager.getAppWidgetInfo(appWidgetId);
         if (info == null) {
@@ -103,7 +106,6 @@ public class WeatherWidget extends AppWidgetProvider {
         float density = context.getResources().getDisplayMetrics().density;
         int hSize = (int)(Math.round(h / density) / WIDGET_UNIT);
         int wSize = (int)(Math.round(w / density) / WIDGET_UNIT);
-        Log.d(TAG, "hSize: " + hSize + ", wSize: " + wSize);
         if (hSize <= 1) {
             if (wSize <= 4) {
                 updateOneFourWidgetView(context, appWidgetManager, appWidgetId, woeid);

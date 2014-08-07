@@ -24,6 +24,8 @@ public class SettingManager {
 
     private static final String WEATHER_USING_C = "using_c";
 
+    private static final String WEATHER_CURRENT_LOCATION_WOEID = "current_location_woeid";
+
     private Context mContext;
 
     private static SettingManager sInstance;
@@ -39,6 +41,14 @@ public class SettingManager {
 
     private SettingManager(Context context) {
         mContext = context.getApplicationContext();
+    }
+
+    public long getCurrentLocationWoeid() {
+        return getPref().getLong(WEATHER_CURRENT_LOCATION_WOEID, -1);
+    }
+
+    public void setCurrentLocationWoeid(long currentWoeid) {
+        getPref().edit().putLong(WEATHER_CURRENT_LOCATION_WOEID, currentWoeid).commit();
     }
 
     public boolean isUsingC() {

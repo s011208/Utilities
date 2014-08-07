@@ -13,6 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bj4.yhh.utilities.DatabaseHelper;
+import com.bj4.yhh.utilities.SettingManager;
 import com.bj4.yhh.utilities.UtilitiesApplication;
 import com.bj4.yhh.utilities.util.Utils;
 
@@ -36,6 +37,8 @@ public class WeatherService extends Service {
     public static final String INTENT_KEY_LAT = "get_lat";
 
     public static final String INTENT_KEY_LON = "get_lon";
+
+    public static final String INTENT_KEY_ADD_INTO_WOEID = "add_into_woeid_list";
 
     public static final String INTENT_UPDATE_ALL = "update_all";
 
@@ -67,8 +70,9 @@ public class WeatherService extends Service {
                         parseWeatherData(woeid);
                     } else if (lat != DatabaseHelper.TABLE_CITIES_LIST_NOT_FOUND_DATA
                             && lon != DatabaseHelper.TABLE_CITIES_LIST_NOT_FOUND_DATA) {
+                        boolean addIntoDb = extras.getBoolean(INTENT_KEY_ADD_INTO_WOEID, true);
                         Log.d(TAG, "update city id");
-                        parseCityIdData(lat, lon);
+                        parseCityIdData(lat, lon, addIntoDb);
                     }
                 }
             }
@@ -76,12 +80,17 @@ public class WeatherService extends Service {
         return Service.START_NOT_STICKY;
     }
 
-    private void parseCityIdData(float lat, float lon) {
+    private void parseCityIdData(float lat, float lon, final boolean addIntoDb) {
         new WeatherIdParserTask(lat, lon, new ParseDoneCallback() {
             @Override
             public void done(long woeid) {
                 if (woeid != 0) {
-                    DatabaseHelper.getInstance(WeatherService.this).addNewWoeid(woeid);
+                    if (addIntoDb) {
+                        DatabaseHelper.getInstance(WeatherService.this).addNewWoeid(woeid);
+                    } else {
+                        SettingManager.getInstance(getApplicationContext())
+                                .setCurrentLocationWoeid(woeid);
+                    }
                     parseWeatherData(woeid);
                 }
                 Intent intent = new Intent(Weather.INTENT_ON_ID_UPDATE);
@@ -118,6 +127,8 @@ public class WeatherService extends Service {
         if (woeids == null) {
             return;
         }
+        woeids.add(new WeatherWoeId(SettingManager.getInstance(getApplicationContext())
+                .getCurrentLocationWoeid(), 0));
         for (int i = 0; i < woeids.size(); i++) {
             long woeid = woeids.get(i).mWoeid;
             if (mParsingWoeid.contains(woeid) == false) {

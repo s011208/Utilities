@@ -14,6 +14,7 @@
     <string name="remove">Remove</string>
     <string name="using_simple_weather_view">Using simple list</string>
     <string name="enable_ga">Allow app to get more data for analytics</string>
+    <string name="current_location">Current loaction</string>
 
     <string-array name="list_menu_item">
         <item>@string/item_calculator</item>
