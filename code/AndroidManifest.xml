@@ -23,6 +23,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="com.android.vending.BILLING" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:name="com.bj4.yhh.utilities.UtilitiesApplication"
@@ -60,6 +61,10 @@
         <service
             android:name="com.bj4.yhh.utilities.UpdateManagerService"
             android:process=":services" />
+        <!-- floating window -->
+        <service
+            android:name="com.bj4.yhh.utilities.floatingwindow.FloatingWindowService"
+            android:process=":floating_services" />
         <!-- Broadcast receiver -->
         <receiver android:name="com.bj4.yhh.utilities.BootCompletedReceiver" >
             <intent-filter>
@@ -68,7 +73,9 @@
         </receiver>
         <!-- widgets -->
         <!-- 2*4 -->
-        <receiver android:name="com.bj4.yhh.utilities.weather.WeatherWidgetTwoFour" >
+        <receiver
+            android:name="com.bj4.yhh.utilities.weather.WeatherWidgetTwoFour"
+            android:label="@string/weather_widget_normal_two_four_label" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -78,7 +85,9 @@
                 android:resource="@xml/weather_widget_two_four" />
         </receiver>
         <!-- 1*4 -->
-        <receiver android:name="com.bj4.yhh.utilities.weather.WeatherWidgetOneFour" >
+        <receiver
+            android:name="com.bj4.yhh.utilities.weather.WeatherWidgetOneFour"
+            android:label="@string/weather_widget_normal_one_four_label" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

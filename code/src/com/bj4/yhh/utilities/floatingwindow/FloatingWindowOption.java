@@ -4,6 +4,7 @@ package com.bj4.yhh.utilities.floatingwindow;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +41,10 @@ public class FloatingWindowOption extends BaseFragment {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
                 if (itemWeather.equals(mFloatingListAdapter.getItem(position))) {
-
+                    Intent start = new Intent(mContext, FloatingWindowService.class);
+                    start.putExtra(FloatingWindowService.INTENT_START_WINDOW,
+                            FloatingWindowService.INTENT_WINDOW_TYPE_WEATHER);
+                    mContext.startService(start);
                 }
             }
         });
