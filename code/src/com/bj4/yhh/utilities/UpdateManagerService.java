@@ -19,7 +19,11 @@ import android.util.Log;
 public class UpdateManagerService extends Service implements LocationListener,
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener {
+    private static final boolean DEBUG = true;
+
     private static final String TAG = "UpdateManagerService";
+
+    private static final String TAG_LOCATION = "QQQQ";
 
     public static final String UPDATE_TYPE = "update_type";
 
@@ -126,16 +130,22 @@ public class UpdateManagerService extends Service implements LocationListener,
 
     @Override
     public void onLocationChanged(Location location) {
+        if (DEBUG)
+            Log.d(TAG_LOCATION, "onLocationChanged");
         updateCurrentLocationData(location);
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult result) {
+        if (DEBUG)
+            Log.d(TAG_LOCATION, "onConnectionFailed");
         updateCurrentLocationData(mLocationClient.getLastLocation());
     }
 
     @Override
     public void onConnected(Bundle connectionHint) {
+        if (DEBUG)
+            Log.d(TAG_LOCATION, "onConnected");
         LocationRequest locationRequest = LocationRequest.create()
                 .setInterval(DEFAULT_UPDATE_LOCATION_INTERVAL)
                 .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
@@ -145,6 +155,8 @@ public class UpdateManagerService extends Service implements LocationListener,
 
     @Override
     public void onDisconnected() {
+        if (DEBUG)
+            Log.d(TAG_LOCATION, "onDisconnected");
         if (mLocationClient != null && mLocationClient.isConnected())
             mLocationClient.removeLocationUpdates(this);
         mHandler.removeCallbacks(mLocationClientConnectionRunnable);
