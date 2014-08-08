@@ -2,6 +2,7 @@
 package com.bj4.yhh.utilities;
 
 import com.bj4.yhh.utilities.weather.WeatherService;
+import com.bj4.yhh.utilities.weather.WeatherWidgetUpdateService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
@@ -9,7 +10,10 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -46,12 +50,30 @@ public class UpdateManagerService extends Service implements LocationListener,
 
     private LocationClient mLocationClient;
 
+    // +++screen on receiver
+    private BroadcastReceiver mScreenOnReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (Intent.ACTION_SCREEN_ON.equals(action)) {
+                final Intent updateIntent = new Intent(context, WeatherWidgetUpdateService.class);
+                context.startService(updateIntent);
+            }
+        }
+    };
+
+    // ---screen on receiver
+
     @Override
     public void onCreate() {
         super.onCreate();
         mLocationClient = new LocationClient(this, this, this);
         scheduleUpdate(UPDATE_ALL);
         mHandler.post(mLocationClientConnectionRunnable);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_SCREEN_ON);
+        registerReceiver(mScreenOnReceiver, filter);
     }
 
     private Runnable mLocationClientConnectionRunnable = new Runnable() {
@@ -69,6 +91,7 @@ public class UpdateManagerService extends Service implements LocationListener,
     public void onDestroy() {
         if (mLocationClient != null)
             mLocationClient.disconnect();
+        unregisterReceiver(mScreenOnReceiver);
     }
 
     private void scheduleUpdate(final int type) {
