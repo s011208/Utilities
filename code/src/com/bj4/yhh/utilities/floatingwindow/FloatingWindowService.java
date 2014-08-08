@@ -13,7 +13,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
-public class FloatingWindowService extends Service {
+public class FloatingWindowService extends Service implements FloatingWindow.FloatingWindowCallback {
     public static final String TAG = "QQQQ";
 
     public static final boolean DEBUG = true;
@@ -43,7 +43,7 @@ public class FloatingWindowService extends Service {
                             mWindowList.add(key);
                             if (DEBUG)
                                 Log.d(TAG, "add weather");
-                            new WeatherFloatingWindow(this);
+                            new WeatherFloatingWindow(this).setCallback(this);
                         }
                         break;
                 }
@@ -62,6 +62,16 @@ public class FloatingWindowService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    @Override
+    public void onCloseWindow(String classKey) {
+        if (classKey == null)
+            return;
+        mWindowList.remove(classKey);
+        if(mWindowList.isEmpty()){
+            stopSelf();
+        }
     }
 
 }

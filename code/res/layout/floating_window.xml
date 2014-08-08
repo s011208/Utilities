@@ -3,18 +3,58 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <TextView
-        android:id="@+id/floating_window_title"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:id="@+id/floating_action_bar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#ffffff"
-        android:textSize="20sp" />
+        android:background="@color/default_action_bar_bg" >
+
+        <TextView
+            android:id="@+id/floating_window_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:background="@color/default_action_bar_bg"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="X"
+            android:textColor="#ffffff"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/floating_window_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center"
+            android:layout_toRightOf="@+id/floating_window_close"
+            android:background="@color/default_action_bar_bg"
+            android:gravity="center"
+            android:padding="10dp"
+            android:textColor="#ffffff"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/floating_window_extend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@color/default_action_bar_bg"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="+"
+            android:textColor="#ffffff"
+            android:textSize="20sp" />
+    </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/floating_window_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/floating_window_title" >
+        android:layout_below="@+id/floating_action_bar"
+        android:background="#ffffff" >
     </FrameLayout>
 
 </RelativeLayout>

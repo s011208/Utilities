@@ -25,4 +25,9 @@ public class WeatherFloatingWindow extends FloatingWindow {
         setTitle("Weather");
         addFloatingContent(new Weather(mContext));
     }
+
+    @Override
+    public String getClassStringKey() {
+        return WeatherFloatingWindow.class.toString();
+    }
 }
