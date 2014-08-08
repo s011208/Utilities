@@ -1,6 +1,7 @@
 
 package com.bj4.yhh.utilities.floatingwindow;
 
+import com.bj4.yhh.utilities.R;
 import com.bj4.yhh.utilities.weather.Weather;
 
 import android.content.Context;
@@ -22,7 +23,7 @@ public class WeatherFloatingWindow extends FloatingWindow {
 
     @Override
     public void init() {
-        setTitle("Weather");
+        setTitle(mContext.getString(R.string.item_weather));
         addFloatingContent(new Weather(mContext));
     }
 

@@ -35,7 +35,9 @@ public class FloatingWindowOption extends BaseFragment {
         mContentView = inflater.inflate(R.layout.floating_widow_option_fragment, null);
         mFloatingList = (ListView)mContentView.findViewById(R.id.floating_item_list);
         final String itemWeather = mContext.getString(R.string.item_weather);
+        final String itemCalculator = mContext.getString(R.string.item_calculator);
         mFloatingWindows.add(itemWeather);
+        mFloatingWindows.add(itemCalculator);
         mFloatingList.setOnItemClickListener(new OnItemClickListener() {
 
             @Override
@@ -44,6 +46,11 @@ public class FloatingWindowOption extends BaseFragment {
                     Intent start = new Intent(mContext, FloatingWindowService.class);
                     start.putExtra(FloatingWindowService.INTENT_START_WINDOW,
                             FloatingWindowService.INTENT_WINDOW_TYPE_WEATHER);
+                    mContext.startService(start);
+                } else if (itemCalculator.equals(mFloatingListAdapter.getItem(position))) {
+                    Intent start = new Intent(mContext, FloatingWindowService.class);
+                    start.putExtra(FloatingWindowService.INTENT_START_WINDOW,
+                            FloatingWindowService.INTENT_WINDOW_TYPE_CALCULATOR);
                     mContext.startService(start);
                 }
             }

@@ -1,6 +1,8 @@
 
 package com.bj4.yhh.utilities.floatingwindow;
 
+import java.util.ArrayList;
+
 import com.bj4.yhh.utilities.R;
 
 import android.content.Context;
@@ -58,6 +60,8 @@ public abstract class FloatingWindow extends FrameLayout {
 
     private int mStatusbarHeight;
 
+    private static ArrayList<String> sWindowOrderList = new ArrayList<String>();
+
     public void setCallback(FloatingWindowCallback cb) {
         mCallback = cb;
     }
@@ -113,6 +117,8 @@ public abstract class FloatingWindow extends FrameLayout {
                 if (mCallback != null) {
                     mCallback.onCloseWindow(getClassStringKey());
                     wm.removeView(FloatingWindow.this);
+                    String classString = getClassStringKey();
+                    sWindowOrderList.remove(classString);
                 }
             }
         });
@@ -120,6 +126,27 @@ public abstract class FloatingWindow extends FrameLayout {
         addView(mMainParent);
         wm.addView(this, wmParams);
         mIsWindowShown = true;
+        String classString = getClassStringKey();
+        sWindowOrderList.remove(classString);
+        sWindowOrderList.add(0, classString);
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            String classString = getClassStringKey();
+            if (classString != null && sWindowOrderList.isEmpty() == false
+                    && sWindowOrderList.get(0).equals(classString) == false) {
+                wmParams.windowAnimations = 0;
+                wm.removeView(this);
+                wm.addView(this, wmParams);
+                wmParams.windowAnimations = android.R.style.Animation_Toast;
+                sWindowOrderList.remove(classString);
+                sWindowOrderList.add(0, classString);
+                return true;
+            }
+        }
+        return super.onInterceptTouchEvent(ev);
     }
 
     public abstract String getClassStringKey();

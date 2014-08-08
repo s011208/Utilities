@@ -21,6 +21,7 @@ public class FloatingWindowService extends Service implements FloatingWindow.Flo
     public static final String INTENT_START_WINDOW = "intent_start_window";
 
     public static final int INTENT_WINDOW_TYPE_WEATHER = 0;
+    public static final int INTENT_WINDOW_TYPE_CALCULATOR = 1;
 
     private ArrayList<String> mWindowList = new ArrayList<String>();
 
@@ -36,14 +37,24 @@ public class FloatingWindowService extends Service implements FloatingWindow.Flo
             Bundle extras = intent.getExtras();
             if (extras != null) {
                 int windowType = extras.getInt(INTENT_START_WINDOW, -1);
+                String key = null;
                 switch (windowType) {
                     case INTENT_WINDOW_TYPE_WEATHER:
-                        String key = WeatherFloatingWindow.class.toString();
+                        key = WeatherFloatingWindow.class.toString();
                         if (mWindowList.contains(key) == false) {
                             mWindowList.add(key);
                             if (DEBUG)
                                 Log.d(TAG, "add weather");
                             new WeatherFloatingWindow(this).setCallback(this);
+                        }
+                        break;
+                    case INTENT_WINDOW_TYPE_CALCULATOR:
+                        key = CalculatorFloatingWindow.class.toString();
+                        if (mWindowList.contains(key) == false) {
+                            mWindowList.add(key);
+                            if (DEBUG)
+                                Log.d(TAG, "add calculator");
+                            new CalculatorFloatingWindow(this).setCallback(this);
                         }
                         break;
                 }
